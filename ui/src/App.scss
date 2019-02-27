@@ -1,0 +1,30 @@
+@import "~@blueprintjs/core/lib/scss/variables";
+
+body {
+  background-color: $dark-gray4;
+}
+
+.container {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.container .row.navbar {
+  flex: 0 1 auto;
+}
+
+.container .row.content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-content: stretch;
+  align-items: stretch;
+  overflow: hidden !important;
+}
+
+.container .row.footer {
+  flex: 0 1 40px;
+}

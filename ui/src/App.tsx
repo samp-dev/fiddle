@@ -1,41 +1,24 @@
 import React, { Component } from 'react';
-import 'tabler-react/dist/Tabler.css';
-import './App.css';
+import SplitPane from 'react-split-pane';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 
-import {
-  Site,
-  Card,
-  Header,
-  Button,
-} from "tabler-react";
+import NavBar from './components/NavBar';
+import MainView from './components/MainView';
+import Footer from './components/Footer';
 
+import './App.scss';
+import 'normalize.css/normalize.css';
+import '@blueprintjs/core/lib/css/blueprint.css';
+import '@blueprintjs/icons/lib/css/blueprint-icons.css';
 
 class App extends Component {
   render() {
     return (
-      <>
-        {/*<Router>
-            <Switch>
-                <Route exact path='/'>
-                    <Redirect to={'/route'} />
-                </Route>
-                <Route exact path={'/:fiddle'} component={Fiddle} />
-                <Route component={Error_404} />
-            </Switch>
-        </Router>*/}
-        <Site>
-          <Site.Header>
-            <Header>PAWN fiddle</Header>
-            <Button color={'success'} icon={'play'}>
-              Run (F5)
-            </Button>
-          </Site.Header>
-          <Site.Header>
-            Powered by
-          </Site.Header>
-        </Site>
-      </>
+      <div className={'bp3-dark container'}>
+        <NavBar />
+        <MainView />
+        <Footer />
+      </div>
     );
   }
 }
