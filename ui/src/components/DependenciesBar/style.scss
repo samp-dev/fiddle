@@ -2,4 +2,10 @@
   order: 0;
   flex: 0 1 17%;
   align-self: auto;
+  min-width: 17%;
+  overflow-y: auto;
+}
+
+.heading-padding {
+  margin: 10px !important;
 }

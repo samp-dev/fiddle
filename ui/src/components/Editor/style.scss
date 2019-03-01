@@ -1,0 +1,19 @@
+@import "~@blueprintjs/core/lib/scss/variables";
+
+/*.monaco-editor .margin {
+    background-color: $dark-gray3 !important;
+}
+
+.monaco-editor, .monaco-editor-background, .monaco-editor .inputarea.ime-input {
+    background-color: $dark-gray4 !important;
+}*/
+
+.monaco-editor a:hover {
+    text-decoration: none;
+}
+
+:export {
+  monacoBackground: $dark-gray4;
+  monacoGutterBackground: $dark-gray3;
+  monacoCursor: $gray4;
+}

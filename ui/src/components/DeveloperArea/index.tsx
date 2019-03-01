@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import SplitPane from 'react-split-pane';
+import ContainerDimensions from 'react-container-dimensions';
 
 import Editor from '../Editor';
 import Console from '../Console';
@@ -11,7 +12,9 @@ class DeveloperArea extends Component {
     return (
       <div className={'developer-area'}>
         <SplitPane split={'vertical'} defaultSize={'50%'}>
-          <Editor />
+          <ContainerDimensions>
+            <Editor />
+          </ContainerDimensions>
           <Console />
         </SplitPane>
       </div>
