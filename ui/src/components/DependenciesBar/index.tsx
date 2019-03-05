@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, H5, Intent, ITagProps, MenuItem, Switch, H4, Tree, TreeNode, ITreeNode } from "@blueprintjs/core";
 import { ItemRenderer, MultiSelect } from "@blueprintjs/select";
+import Scrollbars from 'react-custom-scrollbars';
 
 import './style.scss';
 import { reporters } from 'mocha';
@@ -18,10 +19,12 @@ interface IDependency {
 
 class DependenciesBar extends Component<{}, IState> {
   state: IState = {
+    // @ts-ignore
     dependencies: [
       {
         "user": "maddinat0r",
         "repo": "samp-log",
+        // @ts-ignore
         "contributors": [
           "maddinat0r"
         ],
@@ -79,6 +82,7 @@ class DependenciesBar extends Component<{}, IState> {
       {
         "user": "Osamakurdi",
         "repo": "DS-and-OS",
+        // @ts-ignore
         "classification": "basic",
         "stars": 0,
         "updated": "2018-01-16T17:03:37Z",
@@ -88,6 +92,7 @@ class DependenciesBar extends Component<{}, IState> {
       {
         "user": "Aktah",
         "repo": "SA-MP-CODEAK",
+        // @ts-ignore
         "entry": "gamemodes\\codeak.pwn",
         "output": "gamemodes\\codeak.amx",
         "dependencies": [
@@ -187,7 +192,7 @@ class DependenciesBar extends Component<{}, IState> {
 
   render() {
     return (
-      <div className={'dependencies-bar'}>
+      <Scrollbars className={'dependencies-bar'}>
         <H4 className={'heading-padding'}>Manage dependencies</H4>
         <Tree
           contents={this.dependencyTreeBuilder()}
@@ -195,7 +200,7 @@ class DependenciesBar extends Component<{}, IState> {
           onNodeExpand={(node: ITreeNode) => { node.isExpanded = true; this.setState(this.state); console.log(node); }}
         >
         </Tree>
-      </div>
+      </Scrollbars>
     );
   }
 }
