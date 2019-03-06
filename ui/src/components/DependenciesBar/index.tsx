@@ -175,7 +175,7 @@ class DependenciesBar extends Component<{}, IState> {
       icon: (value.resources) ? 'code-block' : 'document',
       label: `${value.user}/${value.repo}`,
       secondaryLabel: <Button icon={'remove'} className={'bp3-minimal'} onClick={() => this.removeDependency(value)} />,
-      hasCaret: !(!value.dependencies),
+      hasCaret: false,
       isExpanded: true,
       childNodes: (!value.dependencies) ? [] : value.dependencies.map((dependency: string, offsetIndex: number): ITreeNode => ({
         id: 1000 * index + offsetIndex,
@@ -198,12 +198,7 @@ class DependenciesBar extends Component<{}, IState> {
         <AsyncSelect className={'dependency-select-margin'}></AsyncSelect>
         <Divider />
         <H4 className={'heading-margin'}>Manage dependencies</H4>
-        <Tree
-          contents={this.dependencyTreeBuilder()}
-          onNodeCollapse={(node: ITreeNode) => { node.isExpanded = false; this.setState(this.state); console.log(node); }}
-          onNodeExpand={(node: ITreeNode) => { node.isExpanded = true; this.setState(this.state); console.log(node); }}
-        >
-        </Tree>
+        <Tree contents={this.dependencyTreeBuilder()} />
       </Scrollbars>
     );
   }
