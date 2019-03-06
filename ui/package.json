@@ -13,6 +13,7 @@
     "@types/react-router-dom": "^4.3.1",
     "@types/react-select": "^2.0.13",
     "@types/react-splitter-layout": "^3.0.0",
+    "@types/socket.io-client": "^1.4.32",
     "@uiw/react-monacoeditor": "^1.0.6",
     "node-sass": "^4.11.0",
     "normalize.css": "^8.0.1",
@@ -26,6 +27,7 @@
     "react-scripts": "2.1.5",
     "react-select": "^2.4.1",
     "react-split-pane": "^0.1.85",
+    "socket.io-client": "^2.2.0",
     "tabler-react": "^1.28.0",
     "typescript": "3.3.3"
   },

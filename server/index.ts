@@ -1,6 +1,6 @@
 import './common/env';
-import Server from './common/server';
+import Server from './common/express';
+import './common/socket';
 
 const port = parseInt(process.env.PORT);
-export default new Server()
-  .listen(port);
+export default Server.listen(port);
