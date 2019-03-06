@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Button, H5, Intent, ITagProps, MenuItem, Switch, H4, Tree, TreeNode, ITreeNode } from "@blueprintjs/core";
+import { Button, H5, Intent, ITagProps, MenuItem, Switch, H4, Tree, TreeNode, ITreeNode, Divider } from "@blueprintjs/core";
 import { ItemRenderer, MultiSelect } from "@blueprintjs/select";
 import Scrollbars from 'react-custom-scrollbars';
+import AsyncSelect from 'react-select/lib/Async';
 
 import './style.scss';
 import { reporters } from 'mocha';
@@ -193,7 +194,10 @@ class DependenciesBar extends Component<{}, IState> {
   render() {
     return (
       <Scrollbars className={'dependencies-bar'}>
-        <H4 className={'heading-padding'}>Manage dependencies</H4>
+        <H4 className={'heading-margin'}>Add dependency</H4>
+        <AsyncSelect className={'dependency-select-margin'}></AsyncSelect>
+        <Divider />
+        <H4 className={'heading-margin'}>Manage dependencies</H4>
         <Tree
           contents={this.dependencyTreeBuilder()}
           onNodeCollapse={(node: ITreeNode) => { node.isExpanded = false; this.setState(this.state); console.log(node); }}
