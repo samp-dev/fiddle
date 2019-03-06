@@ -193,7 +193,7 @@ class DependenciesBar extends Component<{}, IState> {
 
   render() {
     return (
-      <Scrollbars className={'dependencies-bar'}>
+      <Scrollbars className={'dependencies-bar'} style={{ height: 'none !important' }}>
         <H4 className={'heading-margin'}>Add dependency</H4>
         <AsyncSelect className={'dependency-select-margin'}></AsyncSelect>
         <Divider />
