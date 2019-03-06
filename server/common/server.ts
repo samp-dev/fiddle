@@ -7,10 +7,14 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import l from './logger';
 import routes from '../routes';
+import socketio from 'socket.io';
 
 const app = express();
 
 export default class ExpressServer {
+  public server: http.Server;
+  public io: socketio.Server;
+
   constructor() {
     const root = path.normalize(__dirname + '/../..');
     app.set('appPath', root + 'client');
@@ -26,7 +30,9 @@ export default class ExpressServer {
 
   listen(p: string | number = process.env.PORT): Application {
     const welcome = port => () => l.info(`up and running in ${process.env.NODE_ENV || 'development'} @: ${os.hostname()} on port: ${port}`);
-    http.createServer(app).listen(p, welcome(p));
+    this.server = http.createServer(app);
+    this.io = socketio(this.server);
+    this.server.listen(p, welcome(p));
     return app;
   }
 }
