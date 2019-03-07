@@ -11,7 +11,7 @@ class DeveloperArea extends Component {
   render() {
     return (
       <div className={'developer-area'}>
-        <SplitPane split={'vertical'} defaultSize={'50%'}>
+        <SplitPane split={'vertical'} defaultSize={'60%'}>
           <ContainerDimensions>
             <Editor />
           </ContainerDimensions>
