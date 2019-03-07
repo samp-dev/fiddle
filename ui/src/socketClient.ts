@@ -5,6 +5,7 @@ class SocketClient {
 
   constructor() {
     this.socket = socketio();
+    setTimeout(() => console.log(this.socket.connected), 5000);
     this.socket.emit('initialMsg', 'test');
   }
 }
