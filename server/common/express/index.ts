@@ -22,7 +22,9 @@ export default class ExpressServer {
     app.use(bodyParser.urlencoded({ extended: true, limit: process.env.REQUEST_LIMIT || '1MB' }));
     app.use(cookieParser(process.env.SESSION_SECRET));
     app.use(helmet());
-    
+
+    // /AdjectiveAdjectiveAnimal regex
+    app.use(/^\/(?=(.*[A-Z]){3,})(?=(.*[a-z]){3,})[^\W|_|\d]+$/, express.static(`${root}/ui/build/index.html`));
     app.use(express.static(`${root}/ui/build/`));
 
     routes(app);

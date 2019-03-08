@@ -16,7 +16,7 @@ class NavBar extends Component {
             <img src={logoPath} style={{ marginTop: '4px' }} alt={'PAWN Logo'} />
           </Navbar.Heading>
           <Navbar.Heading>
-            <EditableText confirmOnEnterKey={true} placeholder={'Click here to give your fiddle a meaningful title'} />
+            <EditableText confirmOnEnterKey={true} placeholder={'Click here to give your fiddle a meaningful title'} maxLength={100} />
           </Navbar.Heading>
         </Navbar.Group>
         <Navbar.Group align={Alignment.RIGHT}>

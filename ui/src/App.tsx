@@ -20,7 +20,7 @@ interface IState {
 }
 
 interface IInitialMsg {
-  
+  fiddle: string
 }
 
 class App extends Component<{}, IState> {
@@ -65,7 +65,7 @@ class App extends Component<{}, IState> {
 
   onConnect(): void {
     const initialMsg: IInitialMsg = {
-      
+      fiddle: window.location.pathname.substr(1)
     };
 
     socketClient.socket.emit('initialMsg', initialMsg);
