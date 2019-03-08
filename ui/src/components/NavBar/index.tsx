@@ -6,8 +6,6 @@ import './style.scss';
 import logoPath from '../../assets/images/pawnlogo.png';
 
 class NavBar extends Component {
-
-
   render() {
     return (
       <Navbar className={'row navbar'}>

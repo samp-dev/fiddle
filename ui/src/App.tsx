@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { Toaster, Position, Intent } from '@blueprintjs/core';
+import { Toaster, Position, Intent, IToastProps } from '@blueprintjs/core';
 
 import ErrorDialog from './components/ErrorDialog';
 import NavBar from './components/NavBar';
@@ -34,6 +34,8 @@ class App extends Component<{}, IState> {
     socketClient.socket.on('disconnect', this.onDisconnect.bind(this));
     socketClient.socket.on('reconnect', this.onReconnect.bind(this));
     socketClient.socket.on('connect', this.onConnect.bind(this));
+    
+    socketClient.socket.on('toast', this.onToast.bind(this));
   }
 
   onConnectError(): void {
@@ -57,9 +59,10 @@ class App extends Component<{}, IState> {
     });
 
     Toaster.create({ position: Position.TOP })
-      .show({ icon: 'tick',
-              intent: Intent.SUCCESS,
-              message: 'The connection has been re-established.'
+      .show({
+        icon: 'tick',
+        intent: Intent.SUCCESS,
+        message: 'The connection has been re-established.'
       });
   }
 
@@ -69,6 +72,11 @@ class App extends Component<{}, IState> {
     };
 
     socketClient.socket.emit('initialMsg', initialMsg);
+  }
+
+  onToast(toastInfo: IToastProps): void {
+    Toaster.create({ position: Position.TOP })
+      .show(toastInfo);
   }
 
   render() {
