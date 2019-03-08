@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { Button, H5, Intent, ITagProps, MenuItem, Switch, H4, Tree, TreeNode, ITreeNode, Divider, Toaster, Position } from '@blueprintjs/core';
+import { Button, Intent, H4, Tree, ITreeNode, Divider, Toaster, Position } from '@blueprintjs/core';
 import Scrollbars from 'react-custom-scrollbars';
-import Select from 'react-select';
-import { Styles } from 'react-select/lib/styles';
+import Select, { components as selectComponents } from 'react-select';
+import { Theme } from 'react-select/lib/types';
 
-import './style.scss';
 import socketClient from '../../socketClient';
+
+import scssVars from './style.scss';
 
 interface IState {
   dependencies: IDependency[]
@@ -32,11 +33,28 @@ class DependenciesBar extends Component<{}, IState> {
     selectedDependency: null
   }
 
-  selectStyle: Partial<Styles> = {
-    option: (base: React.CSSProperties, {}): React.CSSProperties => {
-      return { ...base,  };
+  selectTheme = (theme: Theme): Theme => ({
+    ...theme,
+    colors: {
+      ...theme.colors,
+      primary: scssVars.selectHover,
+      primary25: scssVars.selectHover,
+      primary50: scssVars.selectHover,
+      neutral0: scssVars.selectBackground,
+      neutral40: scssVars.selectCaretHover,
+      neutral50: scssVars.selectCaretHover,
+      neutral80: scssVars.selectCaretHover
     }
-  }
+  });
+
+  /* TODO: Scrollbars in Menu
+  selectMenu = (props: any): any => (
+      <selectComponents.Menu {...props}>
+        <Scrollbars>
+          {props.children}
+        </Scrollbars>
+      </selectComponents.Menu>
+  );*/
 
   constructor(props: any) {
     super(props);
@@ -107,7 +125,8 @@ class DependenciesBar extends Component<{}, IState> {
           value={this.state.selectedDependency}
           isSearchable={true}
           options={this.state.availableDependencies}
-          styles={this.selectStyle}
+          theme={this.selectTheme}
+          //components={{ Menu: this.selectMenu }}
           // @ts-ignore
           onChange={this.addDependency}
         />
