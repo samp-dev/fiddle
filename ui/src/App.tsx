@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import { Toaster, Position, Intent } from '@blueprintjs/core';
+
 import ErrorDialog from './components/ErrorDialog';
 import NavBar from './components/NavBar';
 import MainView from './components/MainView';
@@ -28,14 +30,40 @@ class App extends Component<{}, IState> {
   }
 
   componentDidMount(): void {
-    if (!socketClient.socket.connected) {
-      console.log(socketClient.socket.connected);
-      return this.setState({
-        errorDialogOpen: true,
-        errorDialogMessage: 'The backend is not available.'
-      });
-    }
+    socketClient.socket.on('connect_error', this.onConnectError.bind(this));
+    socketClient.socket.on('disconnect', this.onDisconnect.bind(this));
+    socketClient.socket.on('reconnect', this.onReconnect.bind(this));
+    socketClient.socket.on('connect', this.onConnect.bind(this));
+  }
 
+  onConnectError(): void {
+    this.setState({
+      errorDialogOpen: true,
+      errorDialogMessage: 'The backend is not available. Reconnecting...'
+    });
+  }
+
+  onDisconnect(): void {
+    this.setState({
+      errorDialogOpen: true,
+      errorDialogMessage: 'The connection to the backend was lost. Reconnecting...'
+    });
+  }
+
+  onReconnect(): void {
+    this.setState({
+      errorDialogOpen: false,
+      errorDialogMessage: ''
+    });
+
+    Toaster.create({ position: Position.TOP })
+      .show({ icon: 'tick',
+              intent: Intent.SUCCESS,
+              message: 'The connection has been re-established.'
+      });
+  }
+
+  onConnect(): void {
     const initialMsg: IInitialMsg = {
       
     };
