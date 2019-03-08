@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button, H5, Intent, ITagProps, MenuItem, Switch, H4, Tree, TreeNode, ITreeNode, Divider, Toaster, Position } from '@blueprintjs/core';
 import Scrollbars from 'react-custom-scrollbars';
 import Select from 'react-select';
+import { Styles } from 'react-select/lib/styles';
 
 import './style.scss';
 import socketClient from '../../socketClient';
@@ -29,6 +30,12 @@ class DependenciesBar extends Component<{}, IState> {
     dependencies: [],
     availableDependencies: [],
     selectedDependency: null
+  }
+
+  selectStyle: Partial<Styles> = {
+    option: (base: React.CSSProperties, {}): React.CSSProperties => {
+      return { ...base,  };
+    }
   }
 
   constructor(props: any) {
@@ -100,6 +107,7 @@ class DependenciesBar extends Component<{}, IState> {
           value={this.state.selectedDependency}
           isSearchable={true}
           options={this.state.availableDependencies}
+          styles={this.selectStyle}
           // @ts-ignore
           onChange={this.addDependency}
         />
