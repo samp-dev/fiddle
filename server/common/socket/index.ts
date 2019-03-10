@@ -14,10 +14,6 @@ interface ExtendedSocket extends Socket {
   content?: string
 }
 
-interface IInitialMsg {
-  fiddle: string
-}
-
 interface IDependency {
   user: string,
   repo: string,
@@ -34,7 +30,7 @@ interface IAvailableDependency {
 export default class SocketServer {
   constructor() {
     server.io.on('connect', (socket: Socket) => {
-      socket.on('initialMsg', this.onInitialMsg.bind(this, socket));
+      socket.on('fiddleID', this.onFiddleID.bind(this, socket));
       socket.on('dependencyList', this.onDependencyList.bind(this, socket));
 
       socket.on('setTitle', this.onSetTitle.bind(this, socket));
@@ -43,22 +39,22 @@ export default class SocketServer {
     });
   }
 
-  async onInitialMsg(socket: ExtendedSocket, data: IInitialMsg): Promise<any> {
-    console.log(data);
+  async onFiddleID(socket: ExtendedSocket, fiddleID: string): Promise<any> {
+    console.log(fiddleID);
 
-    if (data.fiddle === undefined || (data.fiddle && !aaaRegex.test(data.fiddle)))
+    if (fiddleID === undefined || (fiddleID && !aaaRegex.test(fiddleID)))
       return socket.emit('invalidRequest');
 
-    if (data.fiddle === '') {
+    if (fiddleID === '') {
       // New fiddle
       socket.composing = true;
       socket.fiddleID = await adjectiveAdjectiveAnimal('pascal');
     } else {
       // Existing fiddle
       socket.composing = false;
-      socket.fiddleID = data.fiddle;
+      socket.fiddleID = fiddleID;
       socket.title = ''; // TODO: Load
-      socket.dependencies = null; // TODO: Load
+      socket.dependencies = []; // TODO: Load
       socket.content = ''; // TODO: Load
 
       socket.emit('setContentLockState', !socket.composing); // If we're not in compose mode, lock the content
