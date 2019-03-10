@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 
-//import MonacoEditor from 'react-monaco-editor';
 import MonacoEditor from '@uiw/react-monacoeditor';
+import _ from 'lodash';
+
+import socketClient from '../../socketClient';
 
 import scssVars from './style.scss';
 
@@ -19,6 +21,7 @@ class Editor extends Component<Props> {
     super(props);
 
     this.editorDidMount = this.editorDidMount.bind(this);
+    this.onContentChange = this.onContentChange.bind(this);
   }
 
   editorDidMount(editor: any, monaco: any) {
@@ -38,6 +41,10 @@ class Editor extends Component<Props> {
     editor.focus();
   }
 
+  onContentChange(newValue: string, event: Event): void {
+    socketClient.socket.emit('setContent', newValue);
+  }
+
   render() {
     return (
       <MonacoEditor
@@ -50,6 +57,7 @@ class Editor extends Component<Props> {
           readOnly: false
         }}
         editorDidMount={this.editorDidMount}
+        onChange={_.debounce(this.onContentChange, 550)}
         >
       </MonacoEditor>
     );

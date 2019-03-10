@@ -7,11 +7,15 @@ import server from '../express';
 const aaaRegex = /^(?=(.*[A-Z]){3,})(?=(.*[a-z]){3,})[^\W|_|\d]+$/;
 
 interface ExtendedSocket extends Socket {
-  fiddleID?: string
+  composing?: boolean,
+  fiddleID?: string,
+  title?: string,
+  dependencies?: IDependency[],
+  content?: string
 }
 
 interface IInitialMsg {
-  fiddle: string;
+  fiddle: string
 }
 
 interface IDependency {
@@ -32,6 +36,10 @@ export default class SocketServer {
     server.io.on('connect', (socket: Socket) => {
       socket.on('initialMsg', this.onInitialMsg.bind(this, socket));
       socket.on('dependencyList', this.onDependencyList.bind(this, socket));
+
+      socket.on('setTitle', this.onSetTitle.bind(this, socket));
+      socket.on('setDependencies', this.onSetDependencies.bind(this, socket));
+      socket.on('setContent', this.onSetContent.bind(this, socket));
     });
   }
 
@@ -43,13 +51,20 @@ export default class SocketServer {
 
     if (data.fiddle === '') {
       // New fiddle
+      socket.composing = true;
       socket.fiddleID = await adjectiveAdjectiveAnimal('pascal');
     } else {
       // Existing fiddle
-      socket.emit('setTitle');
-      socket.emit('setDependencies');
-      socket.emit('setContent');
-      socket.emit('setContentLockState');
+      socket.composing = false;
+      socket.fiddleID = data.fiddle;
+      socket.title = ''; // TODO: Load
+      socket.dependencies = null; // TODO: Load
+      socket.content = ''; // TODO: Load
+
+      socket.emit('setContentLockState', !socket.composing); // If we're not in compose mode, lock the content
+      socket.emit('setTitle', socket.title);
+      socket.emit('setDependencies', socket.dependencies);
+      socket.emit('setContent', socket.content);
     }
   }
 
@@ -73,5 +88,41 @@ export default class SocketServer {
         intent: 'danger'
       });
     }
+  }
+
+  onSetTitle(socket: ExtendedSocket, title: string): any {
+    if (title.length > 100) {
+      return socket.emit('toast', {
+        message: 'Invalid request. (Title cannot be longer than 100 characters)',
+        icon: 'error',
+        intent: 'danger'
+      });
+    }
+
+    socket.title = title;
+  }
+
+  onSetDependencies(socket: ExtendedSocket, dependencies: IDependency[]): any {
+    if (dependencies.length > 10) {
+      return socket.emit('toast', {
+        message: 'Invalid request. (You cannot add more than 10 dependencies)',
+        icon: 'error',
+        intent: 'danger'
+      });
+    }
+
+    socket.dependencies = dependencies;
+  }
+
+  onSetContent(socket: ExtendedSocket, content: string): any {
+    if (Buffer.byteLength(content, 'utf8') > 25600) {
+      return socket.emit('toast', {
+        message: 'Invalid request. (Your fiddle cannot be bigger than 25 kB)',
+        icon: 'error',
+        intent: 'danger'
+      });
+    }
+
+    socket.content = content;
   }
 }

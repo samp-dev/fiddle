@@ -116,6 +116,11 @@ class DependenciesBar extends Component<{}, IState> {
     socketClient.socket.emit('dependencyList');
   }
 
+  componentWillUpdate(nextProps: {}, nextState: IState) {
+    if (this.state.dependencies !== nextState.dependencies)
+      socketClient.socket.emit('setDependencies', nextState.dependencies);
+  }
+
   render() {
     return (
       <Scrollbars className={'dependencies-bar'} style={{ height: 'none !important' }}>
