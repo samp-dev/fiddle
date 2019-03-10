@@ -7,34 +7,61 @@ import './style.scss';
 
 import logoPath from '../../assets/images/pawnlogo.png';
 
-interface IState {
+interface IState extends IExecutionState {
   locked: boolean,
   title: string
+}
+
+interface IExecutionState {
+  isProcessing: boolean,
+  isRunning: boolean
 }
 
 class NavBar extends Component {
   state: IState = {
     locked: false,
-    title: ''
+    title: '',
+    isProcessing: false,
+    isRunning: false
   }
 
   constructor(props: any) {
     super(props);
 
+    this.runScript = this.runScript.bind(this);
+    this.stopScript = this.stopScript.bind(this);
+
     socketClient.socket.on('setContentLockState', this.onSetContentLockState.bind(this));
     socketClient.socket.on('setTitle', this.onSetTitle.bind(this));
+    socketClient.socket.on('setScriptExecutionState', this.onSetScriptExecutionState.bind(this));
   }
 
-  private onSetContentLockState(locked: boolean) {
+  private onSetContentLockState(locked: boolean): void {
     this.setState({ locked });
   }
 
-  private onSetTitle(title: string) {
+  private onSetTitle(title: string): void {
     this.setState({ title });
+  }
+
+  private onSetScriptExecutionState(executionState: IExecutionState): void {
+    this.setState(executionState);
   }
 
   private onTitleConfirm(value: string): void {
     socketClient.socket.emit('setTitle', value);
+  }
+
+  private runScript(): void {
+    if (!this.state.isProcessing || !this.state.isRunning) {
+      socketClient.socket.emit('runScript');
+    }
+  }
+
+  private stopScript(): void {
+    if (this.state.isRunning) {
+
+    }
   }
 
   render() {
@@ -65,7 +92,11 @@ class NavBar extends Component {
               </div>
           </Popover>
           <Button className={'bp3-minimal'} disabled={!this.state.locked} icon={'fork'} text={'Fork'} large />
-          <Button className={'bp3-minimal'} icon={'play'} text={'Run'} large />
+          { !this.state.isRunning ? (
+            <Button className={'bp3-minimal'} loading={this.state.isProcessing} onClick={this.runScript} icon={'play'} text={'Run'} large />
+          ) : (
+            <Button className={'bp3-minimal'} onClick={this.stopScript} icon={'stop'} text={'Stop'} large />
+          ) }
         </Navbar.Group>
       </Navbar>
     );
