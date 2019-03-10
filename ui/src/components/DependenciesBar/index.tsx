@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Button, Intent, H4, Tree, ITreeNode, Divider, Toaster, Position } from '@blueprintjs/core';
+import { Button, Intent, H4, Tree, ITreeNode, Divider } from '@blueprintjs/core';
 import Scrollbars from 'react-custom-scrollbars';
-import Select, { components as selectComponents } from 'react-select';
+import Select/*, { components as selectComponents }*/ from 'react-select';
 import { Theme } from 'react-select/lib/types';
 
 import socketClient from '../../socketClient';
+import Toast from '../../toast';
 
 import scssVars from './style.scss';
 
@@ -102,9 +103,7 @@ class DependenciesBar extends Component<{}, IState> {
       value: dependency
     });
     this.setState({ dependencies, availableDependencies });
-    Toaster
-      .create({ position: Position.TOP })
-      .show({ intent: Intent.SUCCESS, icon: 'tick', message: `Removed ${dependency.user}/${dependency.repo} from the dependencies.` });
+    Toast.show({ intent: Intent.SUCCESS, icon: 'tick', message: `Removed ${dependency.user}/${dependency.repo} from the dependencies.` });
   }
 
   private onDependencyList(availableDependencies: IAvailableDependency[]): void {
@@ -114,14 +113,12 @@ class DependenciesBar extends Component<{}, IState> {
   // Seems to be incorrectly typed: https://github.com/DefinitelyTyped/DefinitelyTyped/issues/32553
   private addDependency(selectedDependency: IAvailableDependency): any {
     if (this.state.dependencies.length >= 10)
-      return Toaster.create({ position: Position.TOP }).show({ intent: Intent.DANGER, icon: 'error', message: 'You cannot add more than 10 dependencies.' });
+      return Toast.show({ intent: Intent.DANGER, icon: 'error', message: 'You cannot add more than 10 dependencies.' });
 
     const dependencies: IDependency[] = this.state.dependencies.concat(selectedDependency.value);
     const availableDependencies: IAvailableDependency[] = this.state.availableDependencies.filter(e => e !== selectedDependency);
     this.setState({ dependencies, availableDependencies });
-    Toaster
-      .create({ position: Position.TOP })
-      .show({ intent: Intent.SUCCESS, icon: 'tick', message: `Added ${selectedDependency.label} to the dependencies.` });
+    Toast.show({ intent: Intent.SUCCESS, icon: 'tick', message: `Added ${selectedDependency.label} to the dependencies.` });
   }
 
   componentDidMount() {
