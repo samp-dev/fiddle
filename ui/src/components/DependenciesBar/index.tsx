@@ -9,6 +9,7 @@ import socketClient from '../../socketClient';
 import scssVars from './style.scss';
 
 interface IState {
+  locked: boolean,
   dependencies: IDependency[]
   availableDependencies: IAvailableDependency[],
   selectedDependency: IAvailableDependency | null
@@ -28,6 +29,7 @@ interface IAvailableDependency {
 
 class DependenciesBar extends Component<{}, IState> {
   state: IState = {
+    locked: false,
     dependencies: [],
     availableDependencies: [],
     selectedDependency: null
@@ -64,6 +66,17 @@ class DependenciesBar extends Component<{}, IState> {
     this.removeDependency = this.removeDependency.bind(this);
 
     this.onDependencyList = this.onDependencyList.bind(this);
+
+    socketClient.socket.on('setContentLockState', this.onSetContentLockState.bind(this));
+    socketClient.socket.on('setDependencies', this.onSetDependencies.bind(this));
+  }
+
+  private onSetContentLockState(locked: boolean) {
+    this.setState({ locked });
+  }
+
+  private onSetDependencies(dependencies: IDependency[]) {
+    this.setState({ dependencies });
   }
 
   private dependencyTreeBuilder(): ITreeNode[] {
@@ -71,7 +84,7 @@ class DependenciesBar extends Component<{}, IState> {
       id: index,
       icon: (value.resources) ? 'code-block' : 'document',
       label: `${value.user}/${value.repo}`,
-      secondaryLabel: <Button icon={'remove'} className={'bp3-minimal'} onClick={() => this.removeDependency(value)} />,
+      secondaryLabel: this.state.locked ? null : <Button icon={'remove'} className={'bp3-minimal'} onClick={() => this.removeDependency(value)} />,
       hasCaret: false,
       isExpanded: true,
       childNodes: (!value.dependencies) ? [] : value.dependencies.map((dependency: string, offsetIndex: number): ITreeNode => ({
@@ -124,19 +137,24 @@ class DependenciesBar extends Component<{}, IState> {
   render() {
     return (
       <Scrollbars className={'dependencies-bar'} style={{ height: 'none !important' }}>
-        <H4 className={'heading-margin'}>Add dependency</H4>
-        <Select
-          className={'dependency-select-margin'}
-          value={this.state.selectedDependency}
-          isSearchable={true}
-          options={this.state.availableDependencies}
-          theme={this.selectTheme}
-          //components={{ Menu: this.selectMenu }}
-          // @ts-ignore
-          onChange={this.addDependency}
-        />
-        <Divider />
-        <H4 className={'heading-margin'}>Manage dependencies ({this.state.dependencies.length})</H4>
+        {this.state.locked ? '' : (
+          <>
+            <H4 className={'heading-margin'}>Add dependency</H4>
+            <Select
+              className={'dependency-select-margin'}
+              isDisabled={this.state.locked}
+              value={this.state.selectedDependency}
+              isSearchable={true}
+              options={this.state.availableDependencies}
+              theme={this.selectTheme}
+              //components={{ Menu: this.selectMenu }}
+              // @ts-ignore
+              onChange={this.addDependency}
+            />
+            <Divider />
+          </>
+        )}
+        <H4 className={'heading-margin'}>{this.state.locked ? 'D' : 'Manage d'}ependencies ({this.state.dependencies.length})</H4>
         <Tree contents={this.dependencyTreeBuilder()} />
       </Scrollbars>
     );

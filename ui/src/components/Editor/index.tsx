@@ -7,7 +7,7 @@ import socketClient from '../../socketClient';
 
 import scssVars from './style.scss';
 
-interface Props {
+interface IProps {
   readonly width?: Number,
   readonly height?: Number,
   readonly top?: Number,
@@ -16,15 +16,40 @@ interface Props {
   readonly right?: Number,
 }
 
-class Editor extends Component<Props> {
-  constructor(props: Props) {
+interface IState {
+  editorInstance: any,
+  locked: boolean,
+  initialContent: string | null
+}
+
+class Editor extends Component<IProps, IState> {
+  state: IState = {
+    editorInstance: null,
+    locked: false,
+    initialContent: null
+  }
+  
+  constructor(props: IProps) {
     super(props);
 
     this.editorDidMount = this.editorDidMount.bind(this);
     this.onContentChange = this.onContentChange.bind(this);
+
+    socketClient.socket.on('setContentLockState', this.onSetContentLockState.bind(this));
+    socketClient.socket.on('setContent', this.onSetContent.bind(this));
+  }
+
+  private onSetContentLockState(locked: boolean) {
+    this.setState({ locked }, this.state.editorInstance.updateOptions({ readOnly: locked }));
+  }
+
+  private onSetContent(initialContent: string) {
+    this.setState({ initialContent });
   }
 
   editorDidMount(editor: any, monaco: any) {
+    this.setState({ editorInstance: editor });
+
     monaco.editor.defineTheme('pawnFiddle', {
       base: 'vs-dark',
       inherit: true,
@@ -50,11 +75,11 @@ class Editor extends Component<Props> {
       <MonacoEditor
         width={this.props.width}
         height={this.props.height}
+        value={this.state.initialContent}
         language={'c'}
         defaultValue={'#include <a_samp>'}
         options={{
-          theme: 'vs-dark',
-          readOnly: false
+          theme: 'vs-dark'
         }}
         editorDidMount={this.editorDidMount}
         onChange={_.debounce(this.onContentChange, 550)}

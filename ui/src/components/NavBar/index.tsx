@@ -8,22 +8,29 @@ import './style.scss';
 import logoPath from '../../assets/images/pawnlogo.png';
 
 interface IState {
-  locked: boolean
+  locked: boolean,
+  title: string
 }
 
 class NavBar extends Component {
   state: IState = {
-    locked: false
+    locked: false,
+    title: ''
   }
 
   constructor(props: any) {
     super(props);
 
     socketClient.socket.on('setContentLockState', this.onSetContentLockState.bind(this));
+    socketClient.socket.on('setTitle', this.onSetTitle.bind(this));
   }
 
   private onSetContentLockState(locked: boolean) {
     this.setState({ locked });
+  }
+
+  private onSetTitle(title: string) {
+    this.setState({ title });
   }
 
   private onTitleConfirm(value: string): void {
@@ -39,6 +46,7 @@ class NavBar extends Component {
           </Navbar.Heading>
           <Navbar.Heading>
             <EditableText
+              value={this.state.title}
               confirmOnEnterKey={true}
               onConfirm={this.onTitleConfirm.bind(this)}
               placeholder={'Click here to give your fiddle a meaningful title'}
