@@ -2,30 +2,12 @@ import socketio, { Socket } from 'socket.io';
 import adjectiveAdjectiveAnimal from 'adjective-adjective-animal';
 import got from 'got';
 
+import { IExtendedSocket, IDependency, IAvailableDependency } from './interfaces';
+
 import server from '../express';
+import StdMessages from './StdMessages';
 
 const aaaRegex = /^(?=(.*[A-Z]){3,})(?=(.*[a-z]){3,})[^\W|_|\d]+$/;
-
-interface ExtendedSocket extends Socket {
-  composing?: boolean,
-  fiddleID?: string,
-  title?: string,
-  dependencies?: IDependency[],
-  content?: string
-}
-
-interface IDependency {
-  user: string,
-  repo: string,
-  classification: string,
-  dependencies?: string[],
-  resources?: Object[]
-}
-
-interface IAvailableDependency {
-  label: string,
-  value: IDependency
-}
 
 export default class SocketServer {
   constructor() {
@@ -36,10 +18,12 @@ export default class SocketServer {
       socket.on('setTitle', this.onSetTitle.bind(this, socket));
       socket.on('setDependencies', this.onSetDependencies.bind(this, socket));
       socket.on('setContent', this.onSetContent.bind(this, socket));
+
+      socket.on('runScript', this.onRunScript.bind(this, socket));
     });
   }
 
-  async onFiddleID(socket: ExtendedSocket, fiddleID: string): Promise<any> {
+  async onFiddleID(socket: IExtendedSocket, fiddleID: string): Promise<any> {
     console.log(fiddleID);
 
     if (fiddleID === undefined || (fiddleID && !aaaRegex.test(fiddleID)))
@@ -64,7 +48,7 @@ export default class SocketServer {
     }
   }
 
-  async onDependencyList(socket: ExtendedSocket): Promise<void> {
+  async onDependencyList(socket: IExtendedSocket): Promise<void> {
     try {
       const sampctlResponse = await got('api.sampctl.com');
       const sampctlResponseArray: IDependency[] = JSON.parse(sampctlResponse.body);
@@ -78,47 +62,39 @@ export default class SocketServer {
 
       socket.emit('dependencyList', availableDependencies);
     } catch (exception) {
-      socket.emit('toast', {
-        message: 'An error occurred while retrieving the dependency list.',
-        icon: 'error',
-        intent: 'danger'
-      });
+      StdMessages.sendErrorMessage(socket, 'An error occurred while retrieving the dependency list.');
     }
   }
 
-  onSetTitle(socket: ExtendedSocket, title: string): any {
-    if (title.length > 100) {
-      return socket.emit('toast', {
-        message: 'Invalid request. (Title cannot be longer than 100 characters)',
-        icon: 'error',
-        intent: 'danger'
-      });
-    }
+  onSetTitle(socket: IExtendedSocket, title: string): any {
+    if (title.length > 100)
+      return StdMessages.sendErrorMessage(socket, 'Invalid request. (Title cannot be longer than 100 characters)');
 
     socket.title = title;
   }
 
-  onSetDependencies(socket: ExtendedSocket, dependencies: IDependency[]): any {
-    if (dependencies.length > 10) {
-      return socket.emit('toast', {
-        message: 'Invalid request. (You cannot add more than 10 dependencies)',
-        icon: 'error',
-        intent: 'danger'
-      });
-    }
+  onSetDependencies(socket: IExtendedSocket, dependencies: IDependency[]): any {
+    if (dependencies.length > 10)
+      return StdMessages.sendErrorMessage(socket, 'Invalid request. (You cannot add more than 10 dependencies)');
 
     socket.dependencies = dependencies;
   }
 
-  onSetContent(socket: ExtendedSocket, content: string): any {
-    if (Buffer.byteLength(content, 'utf8') > 25600) {
-      return socket.emit('toast', {
-        message: 'Invalid request. (Your fiddle cannot be bigger than 25 kB)',
-        icon: 'error',
-        intent: 'danger'
-      });
-    }
+  onSetContent(socket: IExtendedSocket, content: string): any {
+    if (Buffer.byteLength(content, 'utf8') > 25600)
+      return StdMessages.sendErrorMessage(socket, 'Invalid request. (Your fiddle cannot be bigger than 25 kB)');
 
     socket.content = content;
+  }
+
+  onRunScript(socket: IExtendedSocket): any {
+    if (socket.isRunning || socket.isProcessing)
+      return StdMessages.sendErrorMessage(socket, 'Invalid request. (Your script is already running)');
+
+    socket.isProcessing = true;
+    socket.isRunning = false;
+    StdMessages.sendScriptExecutionState(socket);
+
+    
   }
 }
