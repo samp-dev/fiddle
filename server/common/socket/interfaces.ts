@@ -1,4 +1,5 @@
 import { Socket } from 'socket.io';
+import Fiddle from '../fiddle';
 
 export interface IExtendedSocket extends Socket {
   composing?: boolean,
@@ -7,7 +8,8 @@ export interface IExtendedSocket extends Socket {
   dependencies?: IDependency[],
   content?: string,
   isRunning?: boolean,
-  isProcessing?: boolean
+  isProcessing?: boolean,
+  fiddleInstance?: Fiddle
 }
 
 export interface IDependency {

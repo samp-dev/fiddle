@@ -33,6 +33,7 @@ class App extends Component<{}, IState> {
     socketClient.socket.on('connect', this.onConnect.bind(this));
     
     socketClient.socket.on('toast', this.onToast.bind(this));
+    socketClient.socket.on('showErrorDialog', this.onShowErrorDialog.bind(this));
   }
 
   onConnectError(): void {
@@ -68,6 +69,13 @@ class App extends Component<{}, IState> {
 
   onToast(toastInfo: IToastProps): void {
     Toast.show(toastInfo);
+  }
+
+  onShowErrorDialog(errorDialogMessage: string): void {
+    this.setState({
+      errorDialogOpen: true,
+      errorDialogMessage
+    });
   }
 
   render() {

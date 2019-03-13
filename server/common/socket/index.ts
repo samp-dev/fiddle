@@ -6,6 +6,7 @@ import { IExtendedSocket, IDependency, IAvailableDependency } from './interfaces
 
 import server from '../express';
 import StdMessages from './StdMessages';
+import Fiddle from '../fiddle';
 
 const aaaRegex = /^(?=(.*[A-Z]){3,})(?=(.*[a-z]){3,})[^\W|_|\d]+$/;
 
@@ -35,13 +36,20 @@ export default class SocketServer {
       socket.fiddleID = await adjectiveAdjectiveAnimal('pascal');
     } else {
       // Existing fiddle
+      socket.fiddleInstance = new Fiddle();
+      await socket.fiddleInstance.setData(fiddleID);
+
       socket.composing = false;
       socket.fiddleID = fiddleID;
-      socket.title = ''; // TODO: Load
-      socket.dependencies = []; // TODO: Load
-      socket.content = ''; // TODO: Load
+      socket.title = socket.fiddleInstance.title;
+      socket.dependencies = socket.fiddleInstance.dependencies;
+      socket.content = socket.fiddleInstance.content;
 
       socket.emit('setContentLockState', !socket.composing); // If we're not in compose mode, lock the content
+
+      if (!socket.dependencies)
+        return socket.emit('showErrorDialog', 'Fiddle not found.');
+      
       socket.emit('setTitle', socket.title);
       socket.emit('setDependencies', socket.dependencies);
       socket.emit('setContent', socket.content);
@@ -87,7 +95,7 @@ export default class SocketServer {
     socket.content = content;
   }
 
-  onRunScript(socket: IExtendedSocket): any {
+  async onRunScript(socket: IExtendedSocket): Promise<any> {
     if (socket.isRunning || socket.isProcessing)
       return StdMessages.sendErrorMessage(socket, 'Invalid request. (Your script is already running)');
 
@@ -95,6 +103,11 @@ export default class SocketServer {
     socket.isRunning = false;
     StdMessages.sendScriptExecutionState(socket);
 
+    if (!socket.fiddleInstance) {
+      socket.fiddleInstance = new Fiddle();
+      await socket.fiddleInstance.setData(socket.fiddleID, socket.title, socket.dependencies, socket.content);
+    }
     
+    socket.fiddleInstance.run();
   }
 }

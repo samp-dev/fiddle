@@ -63,7 +63,7 @@ class Footer extends Component<{}, IState> {
         </Dialog>
         <div className={'row footer bp3-navbar'}>
           PAWN Fiddle <Button className={'bp3-minimal'} onClick={this.handleDialogOpen} icon={'help'}></Button> |
-          Made with <Icon icon={'heart'} intent={Intent.DANGER} /> by <a href={'https://sa-mp.dev'}>sa-mp.dev</a> | Powered by <a href={'https://sampctl.com'}>sampctl</a>
+          Made with <Icon icon={'heart'} intent={Intent.DANGER} /> by <a href={'https://sa-mp.dev'}>sa-mp.dev</a> | Powered by <a href={'http://sampctl.com'}>sampctl</a>
         </div>
       </>
     );

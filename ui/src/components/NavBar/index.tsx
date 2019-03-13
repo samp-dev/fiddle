@@ -92,11 +92,11 @@ class NavBar extends Component {
               </div>
           </Popover>
           <Button className={'bp3-minimal'} disabled={!this.state.locked} icon={'fork'} text={'Fork'} large />
-          { !this.state.isRunning ? (
+          {!this.state.isRunning ? (
             <Button className={'bp3-minimal'} loading={this.state.isProcessing} onClick={this.runScript} icon={'play'} text={'Run'} large />
           ) : (
             <Button className={'bp3-minimal'} onClick={this.stopScript} icon={'stop'} text={'Stop'} large />
-          ) }
+          )}
         </Navbar.Group>
       </Navbar>
     );
