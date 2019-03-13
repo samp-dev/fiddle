@@ -36,8 +36,12 @@ export default class SocketServer {
       socket.fiddleID = await adjectiveAdjectiveAnimal('pascal');
     } else {
       // Existing fiddle
+      socket.emit('setContentLockState', !socket.composing); // If we're not in compose mode, lock the content
+
       socket.fiddleInstance = new Fiddle();
-      await socket.fiddleInstance.setData(fiddleID);
+      
+      if (!await socket.fiddleInstance.setData(fiddleID))
+        return socket.emit('showErrorDialog', 'There was an error loading your fiddle.');
 
       socket.composing = false;
       socket.fiddleID = fiddleID;
@@ -45,9 +49,7 @@ export default class SocketServer {
       socket.dependencies = socket.fiddleInstance.dependencies;
       socket.content = socket.fiddleInstance.content;
 
-      socket.emit('setContentLockState', !socket.composing); // If we're not in compose mode, lock the content
-
-      if (!socket.dependencies)
+      if (!socket.title)
         return socket.emit('showErrorDialog', 'Fiddle not found.');
       
       socket.emit('setTitle', socket.title);
@@ -108,6 +110,17 @@ export default class SocketServer {
       await socket.fiddleInstance.setData(socket.fiddleID, socket.title, socket.dependencies, socket.content);
     }
     
-    socket.fiddleInstance.run();
+    if (!await socket.fiddleInstance.run()) {
+      socket.isProcessing = false;
+      socket.isRunning = false;
+      StdMessages.sendScriptExecutionState(socket);
+      return StdMessages.sendErrorMessage(socket, 'An error occurred while trying to execute the script.');
+    }
+
+    socket.isProcessing = false;
+    socket.isRunning = true;
+    StdMessages.sendScriptExecutionState(socket);
+
+    socket.fiddleInstance.subscribeConsole(socket);
   }
 }
