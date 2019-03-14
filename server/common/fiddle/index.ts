@@ -88,10 +88,14 @@ export default class Fiddle {
 
   async save(share: boolean = false): Promise<boolean> {
     try {
+      const fiddleRootPath: string = this.getFiddleRootPath();
       const pawnPackagePath: string = this.getPawnPackagePath();
       const metaDataPath: string = this.getMetaDataPath();
       const scriptPath: string = this.getScriptPath();
 
+      if (!(await fs.exists(fiddleRootPath)))
+        await fs.createDirectory(fiddleRootPath);
+      
       if (!(await fs.exists(metaDataPath))) {
         const metaData: IMetaData = {
           uuid: Fiddle.getUUIDbyFiddleID(this.fiddleID),
@@ -100,30 +104,35 @@ export default class Fiddle {
           shared: false
         };
 
-        await fs.writeFile(metaDataPath, metaData);
+        await fs.writeFile(metaDataPath, JSON.stringify(metaData));
       }
 
       const { shared }: IMetaData = JSON.parse(await fs.readFile(metaDataPath, 'utf8'));
+ 
+      if (shared) // Return immediately, if the fiddle has already been shared
+        return true;
+
       const metaData: IMetaData = {
         uuid: Fiddle.getUUIDbyFiddleID(this.fiddleID),
         title: this.title || `${this.fiddleID}.pwn`,
         dependencies: this.dependencies,
-        shared: share ? true : shared
+        shared: share
       };
-      await fs.writeFile(metaDataPath, metaData);
+      await fs.writeFile(metaDataPath, JSON.stringify(metaData));
 
       const pawnPackage: IPawnPackage = {
         entry: 'script.pwn',
         output: 'script.amx',
         dependencies: this.dependencies.map(dependency => `${dependency.user}/${dependency.repo}`)
       }
-      await fs.writeFile(pawnPackagePath, pawnPackage);
+      await fs.writeFile(pawnPackagePath, JSON.stringify(pawnPackage));
 
       await fs.writeFile(scriptPath, this.content); // TODO: Encoding?
     } catch (ex) {
-      console.log(ex);
       return false;
     }
+
+    return true;
   }
 
   async run(): Promise<boolean> {

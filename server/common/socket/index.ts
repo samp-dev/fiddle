@@ -34,6 +34,8 @@ export default class SocketServer {
       // New fiddle
       socket.composing = true;
       socket.fiddleID = await adjectiveAdjectiveAnimal('pascal');
+      socket.title = '';
+      socket.dependencies = [];
     } else {
       // Existing fiddle
       socket.emit('setContentLockState', !socket.composing); // If we're not in compose mode, lock the content
