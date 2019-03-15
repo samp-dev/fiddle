@@ -30,10 +30,16 @@ class NavBar extends Component {
 
     this.runScript = this.runScript.bind(this);
     this.stopScript = this.stopScript.bind(this);
+    this.syncTitle = this.syncTitle.bind(this);
 
+    socketClient.socket.on('reconnect', this.onReconnect.bind(this));
     socketClient.socket.on('setContentLockState', this.onSetContentLockState.bind(this));
     socketClient.socket.on('setTitle', this.onSetTitle.bind(this));
     socketClient.socket.on('setScriptExecutionState', this.onSetScriptExecutionState.bind(this));
+  }
+
+  private onReconnect(): void {
+    this.syncTitle();
   }
 
   private onSetContentLockState(locked: boolean): void {
@@ -48,8 +54,12 @@ class NavBar extends Component {
     this.setState(executionState);
   }
 
+  private onTitleChange(title: string): void {
+    this.setState({ title });
+  }
+
   private onTitleConfirm(value: string): void {
-    socketClient.socket.emit('setTitle', value);
+    this.syncTitle();
   }
 
   private runScript(): void {
@@ -64,6 +74,10 @@ class NavBar extends Component {
     }
   }
 
+  private syncTitle(): void {
+    socketClient.socket.emit('setTitle', this.state.title);
+  }
+
   render() {
     return (
       <Navbar className={'row navbar'}>
@@ -75,6 +89,7 @@ class NavBar extends Component {
             <EditableText
               value={this.state.title}
               confirmOnEnterKey={true}
+              onChange={this.onTitleChange.bind(this)}
               onConfirm={this.onTitleConfirm.bind(this)}
               placeholder={'Click here to give your fiddle a meaningful title'}
               maxLength={100}

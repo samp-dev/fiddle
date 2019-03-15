@@ -34,20 +34,35 @@ class Editor extends Component<IProps, IState> {
 
     this.editorDidMount = this.editorDidMount.bind(this);
     this.onContentChange = this.onContentChange.bind(this);
+    this.syncContent = this.syncContent.bind(this);
 
+    socketClient.socket.on('reconnect', this.onReconnect.bind(this));
     socketClient.socket.on('setContentLockState', this.onSetContentLockState.bind(this));
     socketClient.socket.on('setContent', this.onSetContent.bind(this));
   }
 
-  private onSetContentLockState(locked: boolean) {
+  private onReconnect(): void {
+    this.syncContent(this.state.editorInstance.getValue());
+  }
+
+  private onSetContentLockState(locked: boolean): void {
     this.setState({ locked }, this.state.editorInstance.updateOptions({ readOnly: locked }));
   }
 
-  private onSetContent(initialContent: string) {
+  private onSetContent(initialContent: string): void {
     this.setState({ initialContent });
   }
 
-  editorDidMount(editor: any, monaco: any) {
+  private onContentChange(newValue: string, event: Event): void {
+    this.syncContent(newValue);
+  }
+
+  private syncContent(value: string): void {
+    if (!this.state.locked)
+      socketClient.socket.emit('setContent', value);
+  }
+
+  editorDidMount(editor: any, monaco: any): void {
     this.setState({ editorInstance: editor });
 
     monaco.editor.defineTheme('pawnFiddle', {
@@ -64,10 +79,6 @@ class Editor extends Component<IProps, IState> {
     monaco.editor.setTheme('pawnFiddle');
 
     editor.focus();
-  }
-
-  onContentChange(newValue: string, event: Event): void {
-    socketClient.socket.emit('setContent', newValue);
   }
 
   render() {

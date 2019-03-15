@@ -65,18 +65,23 @@ class DependenciesBar extends Component<{}, IState> {
     this.dependencyTreeBuilder = this.dependencyTreeBuilder.bind(this);
     this.addDependency = this.addDependency.bind(this);
     this.removeDependency = this.removeDependency.bind(this);
+    this.syncDependencies = this.syncDependencies.bind(this);
 
-    this.onDependencyList = this.onDependencyList.bind(this);
-
+    socketClient.socket.on('reconnect', this.onReconnect.bind(this));
     socketClient.socket.on('setContentLockState', this.onSetContentLockState.bind(this));
     socketClient.socket.on('setDependencies', this.onSetDependencies.bind(this));
   }
 
-  private onSetContentLockState(locked: boolean) {
+  private onReconnect(): void {
+    if (!this.state.locked)
+      this.syncDependencies();
+  }
+
+  private onSetContentLockState(locked: boolean): void {
     this.setState({ locked });
   }
 
-  private onSetDependencies(dependencies: IDependency[]) {
+  private onSetDependencies(dependencies: IDependency[]): void {
     this.setState({ dependencies });
   }
 
@@ -121,14 +126,18 @@ class DependenciesBar extends Component<{}, IState> {
     Toast.show({ intent: Intent.SUCCESS, icon: 'tick', message: `Added ${selectedDependency.label} to the dependencies.` });
   }
 
+  private syncDependencies(): void {
+    socketClient.socket.emit('setDependencies', this.state.dependencies);
+  }
+
   componentDidMount() {
-    socketClient.socket.on('dependencyList', this.onDependencyList);
+    socketClient.socket.on('dependencyList', this.onDependencyList.bind(this));
     socketClient.socket.emit('dependencyList');
   }
 
-  componentWillUpdate(nextProps: {}, nextState: IState) {
-    if (this.state.dependencies !== nextState.dependencies)
-      socketClient.socket.emit('setDependencies', nextState.dependencies);
+  componentDidUpdate(prevProps: {}, prevState: IState) {
+    if (this.state.dependencies !== prevState.dependencies)
+      this.syncDependencies();
   }
 
   render() {

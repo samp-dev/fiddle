@@ -25,7 +25,7 @@ export default class SocketServer {
   }
 
   async onFiddleID(socket: IExtendedSocket, fiddleID: string): Promise<any> {
-    console.log(fiddleID);
+    console.log(`[DEBUG]: Got fiddleID: ${fiddleID}`);
 
     if (fiddleID === undefined || (fiddleID && !aaaRegex.test(fiddleID)))
       return socket.emit('invalidRequest');
@@ -34,8 +34,11 @@ export default class SocketServer {
       // New fiddle
       socket.composing = true;
       socket.fiddleID = await adjectiveAdjectiveAnimal('pascal');
-      socket.title = '';
-      socket.dependencies = [];
+      // The socket may contain a title and dependencies already if the connection was lost before and the reset-process was faster than generating a fiddleID
+      socket.title = socket.title || ''; 
+      socket.dependencies = socket.dependencies || [];
+      
+      console.log(`[DEBUG]: New fiddleID: ${socket.fiddleID}`);
     } else {
       // Existing fiddle
       socket.emit('setContentLockState', !socket.composing); // If we're not in compose mode, lock the content
