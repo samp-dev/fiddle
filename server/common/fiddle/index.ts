@@ -2,21 +2,10 @@ import { Socket } from 'socket.io';
 import getUUID from 'uuid-by-string';
 import fs from 'async-file';
 import path from 'path';
+import os from 'os';
 
-import { IDependency } from '../socket/interfaces';
-
-interface IMetaData {
-  uuid: string,
-  title: string,
-  dependencies: IDependency[],
-  shared: boolean
-}
-
-interface IPawnPackage {
-  entry: string,
-  output: string,
-  dependencies: string[]
-}
+import { IBuildResponse, IDependency, IMetaData, IPawnPackage } from './interfaces';
+import execa from 'execa';
 
 const FIDDLE_PATH = './fiddles/';
 
@@ -135,10 +124,51 @@ export default class Fiddle {
     return true;
   }
 
-  async run(): Promise<boolean> {
-    if (!await this.save())
+  async ensure(): Promise<boolean> {
+    try {
+      await execa('sampctl', ['package', 'ensure'], {
+        cwd: this.getFiddleRootPath()
+      });
+
+      return true;
+    } catch (ex) {
+      // TODO: Log error
       return false;
-        
+    }
+  }
+
+  async build(): Promise<IBuildResponse> {
+    try {
+      await execa('sampctl', ['package', 'build'], {
+        cwd: this.getFiddleRootPath()
+      });
+
+      return {
+        success: true,
+        error: ''
+      };
+    } catch (ex) {
+      const stdout: string = ex.stdout.replace('\\n', os.EOL);
+      const regex: RegExp = /\/.*\/script\.pwn\:(\d)\s\((\w+)\)\s(.*)/g;
+      const matches: RegExpMatchArray = stdout.match(regex);
+
+      let errors: string[] = [];
+
+      if (matches.length) {
+        for (const match of matches) {        
+          const groups: RegExpExecArray = regex.exec(match); // TODO: fix
+          errors.push(`[${groups[2].toUpperCase()}] Line ${groups[1]} - ${groups[3]}`);
+        }
+      }
+
+      return {
+        success: false,
+        error: errors.join('\\n')
+      };
+    }
+  }
+
+  async run(): Promise<boolean> {
     return true;
   }
 

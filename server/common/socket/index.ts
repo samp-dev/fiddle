@@ -2,7 +2,8 @@ import socketio, { Socket } from 'socket.io';
 import adjectiveAdjectiveAnimal from 'adjective-adjective-animal';
 import got from 'got';
 
-import { IExtendedSocket, IDependency, IAvailableDependency } from './interfaces';
+import { IExtendedSocket, IAvailableDependency } from './interfaces';
+import { IBuildResponse, IDependency } from '../fiddle/interfaces';
 
 import server from '../express';
 import StdMessages from './StdMessages';
@@ -110,9 +111,34 @@ export default class SocketServer {
     socket.isRunning = false;
     StdMessages.sendScriptExecutionState(socket);
 
+    socket.emit('clearConsole');
+
     if (!socket.fiddleInstance) {
       socket.fiddleInstance = new Fiddle();
       await socket.fiddleInstance.setData(socket.fiddleID, socket.title, socket.dependencies, socket.content);
+    }
+    
+    if (!await socket.fiddleInstance.save()) {
+      socket.isProcessing = false;
+      socket.isRunning = false;
+      StdMessages.sendScriptExecutionState(socket);
+      return StdMessages.sendErrorMessage(socket, 'An error occurred while trying to save your script.');
+    }
+
+    if (!await socket.fiddleInstance.ensure()) {
+      socket.isProcessing = false;
+      socket.isRunning = false;
+      StdMessages.sendScriptExecutionState(socket);
+      return StdMessages.sendErrorMessage(socket, 'Could not ensure package dependencies. Make sure they are still up to date and available.');
+    }
+
+    const build: IBuildResponse = await socket.fiddleInstance.build();
+    if (!build.success) {
+      socket.isProcessing = false;
+      socket.isRunning = false;
+      StdMessages.sendScriptExecutionState(socket);
+      socket.emit('appendConsole', build.error.replace('\\n', '<br />'));
+      return StdMessages.sendErrorMessage(socket, 'Your script has errors. Check the console output.');
     }
     
     if (!await socket.fiddleInstance.run()) {
