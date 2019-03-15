@@ -73,8 +73,7 @@ class DependenciesBar extends Component<{}, IState> {
   }
 
   private onReconnect(): void {
-    if (!this.state.locked)
-      this.syncDependencies();
+    this.syncDependencies();
   }
 
   private onSetContentLockState(locked: boolean): void {
@@ -127,7 +126,8 @@ class DependenciesBar extends Component<{}, IState> {
   }
 
   private syncDependencies(): void {
-    socketClient.socket.emit('setDependencies', this.state.dependencies);
+    if (!this.state.locked)
+      socketClient.socket.emit('setDependencies', this.state.dependencies);
   }
 
   componentDidMount() {

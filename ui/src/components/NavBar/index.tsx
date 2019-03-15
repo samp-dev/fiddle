@@ -75,7 +75,8 @@ class NavBar extends Component {
   }
 
   private syncTitle(): void {
-    socketClient.socket.emit('setTitle', this.state.title);
+    if (!this.state.locked)
+      socketClient.socket.emit('setTitle', this.state.title);
   }
 
   render() {

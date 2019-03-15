@@ -113,10 +113,10 @@ export default class SocketServer {
 
     socket.emit('clearConsole');
 
-    if (!socket.fiddleInstance) {
+    if (!socket.fiddleInstance)
       socket.fiddleInstance = new Fiddle();
-      await socket.fiddleInstance.setData(socket.fiddleID, socket.title, socket.dependencies, socket.content);
-    }
+    
+    await socket.fiddleInstance.setData(socket.fiddleID, socket.title, socket.dependencies, socket.content);
     
     if (!await socket.fiddleInstance.save()) {
       socket.isProcessing = false;
