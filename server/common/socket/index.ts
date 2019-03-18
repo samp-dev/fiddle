@@ -14,6 +14,8 @@ const aaaRegex = /^(?=(.*[A-Z]){3,})(?=(.*[a-z]){3,})[^\W|_|\d]+$/;
 export default class SocketServer {
   constructor() {
     server.io.on('connect', (socket: Socket) => {
+      socket.on('disconnect', this.onDisconnect.bind(this, socket));
+
       socket.on('fiddleID', this.onFiddleID.bind(this, socket));
       socket.on('dependencyList', this.onDependencyList.bind(this, socket));
 
@@ -26,6 +28,11 @@ export default class SocketServer {
 
       this.sendStopScript = this.sendStopScript.bind(this);
     });
+  }
+
+  onDisconnect(socket: IExtendedSocket): void {
+    if (socket.fiddleInstance && socket.fiddleInstance.process)
+      socket.fiddleInstance.terminate();
   }
 
   async onFiddleID(socket: IExtendedSocket, fiddleID: string): Promise<any> {

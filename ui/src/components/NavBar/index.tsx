@@ -39,6 +39,12 @@ class NavBar extends Component {
   }
 
   private onReconnect(): void {
+    // Reset the execution state when reconnecting -> the docker container is killed when disconnecting
+    this.setState({
+      isProcessing: false,
+      isRunning: false
+    });
+
     this.syncTitle();
   }
 
