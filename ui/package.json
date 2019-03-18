@@ -29,6 +29,7 @@
     "react-scripts": "2.1.5",
     "react-select": "^2.4.1",
     "react-split-pane": "^0.1.85",
+    "sanitize-html-react": "^1.13.0",
     "socket.io-client": "^2.2.0",
     "tabler-react": "^1.28.0",
     "typescript": "3.3.3"

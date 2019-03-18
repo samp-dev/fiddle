@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Scrollbars from 'react-custom-scrollbars';
+import sanitizeHtml from 'sanitize-html-react';
 
 import socketClient from '../../socketClient';
 
@@ -47,8 +48,9 @@ class Console extends Component<{}, IState> {
   render() {
     return (
       <Scrollbars>
-        <div className={'console-output'}>
-          {this.state.consoleOutput}
+        <div
+          className={'console-output'}
+          dangerouslySetInnerHTML={{__html: sanitizeHtml(this.state.consoleOutput)}}>
         </div>
       </Scrollbars>
     );

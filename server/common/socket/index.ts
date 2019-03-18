@@ -22,6 +22,9 @@ export default class SocketServer {
       socket.on('setContent', this.onSetContent.bind(this, socket));
 
       socket.on('runScript', this.onRunScript.bind(this, socket));
+      socket.on('stopScript', this.onStopScript.bind(this, socket));
+
+      this.sendStopScript = this.sendStopScript.bind(this);
     });
   }
 
@@ -137,7 +140,7 @@ export default class SocketServer {
       socket.isProcessing = false;
       socket.isRunning = false;
       StdMessages.sendScriptExecutionState(socket);
-      socket.emit('appendConsole', build.error.replace('\\n', '<br />'));
+      socket.emit('appendConsole', build.error);
       return StdMessages.sendErrorMessage(socket, 'Your script has errors. Check the console output.');
     }
     
@@ -153,5 +156,20 @@ export default class SocketServer {
     StdMessages.sendScriptExecutionState(socket);
 
     socket.fiddleInstance.subscribeConsole(socket);
+    socket.fiddleInstance.subscribeTerminate(socket, this.sendStopScript);
+  }
+
+  onStopScript(socket: IExtendedSocket): any {
+    if (!socket.isRunning)
+      return StdMessages.sendErrorMessage(socket, 'Invalid request. (Your script is not running yet)');
+    
+    if (socket.fiddleInstance.terminate())
+      this.sendStopScript(socket);
+  }
+
+  sendStopScript(socket: IExtendedSocket) {
+    socket.isProcessing = false;
+    socket.isRunning = false;
+    StdMessages.sendScriptExecutionState(socket);
   }
 }

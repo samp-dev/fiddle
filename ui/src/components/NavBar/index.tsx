@@ -70,7 +70,7 @@ class NavBar extends Component {
 
   private stopScript(): void {
     if (this.state.isRunning) {
-
+      socketClient.socket.emit('stopScript');
     }
   }
 

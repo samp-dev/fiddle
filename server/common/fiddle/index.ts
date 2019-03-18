@@ -3,9 +3,10 @@ import getUUID from 'uuid-by-string';
 import fs from 'async-file';
 import path from 'path';
 import os from 'os';
+import execa, { ExecaChildProcess } from 'execa';
 
 import { IBuildResponse, IDependency, IMetaData, IPawnPackage } from './interfaces';
-import execa from 'execa';
+import { IExtendedSocket } from '../socket/interfaces';
 
 const FIDDLE_PATH = './fiddles/';
 
@@ -14,6 +15,7 @@ export default class Fiddle {
   public title: string;
   public dependencies: IDependency[];
   public content: string;
+  public process: ExecaChildProcess;
 
   //constructor() {
   //  Moved everything to setData() because async operations in constructors are bAd PrAcTiCe
@@ -21,6 +23,14 @@ export default class Fiddle {
 
   static getUUIDbyFiddleID(humanReadableID: string): string {
     return getUUID(humanReadableID);
+  }
+
+  static getErrorFormat(errorType: string): string {
+    switch (errorType) {
+      case 'fatal': return ' FATAL ';
+      case 'error': return ' ERROR ';
+      case 'warning': return 'WARNING';
+    }
   }
 
   private getFiddleRootPath(): string {
@@ -84,7 +94,7 @@ export default class Fiddle {
 
       if (!(await fs.exists(fiddleRootPath)))
         await fs.createDirectory(fiddleRootPath);
-      
+
       if (!(await fs.exists(metaDataPath))) {
         const metaData: IMetaData = {
           uuid: Fiddle.getUUIDbyFiddleID(this.fiddleID),
@@ -97,7 +107,7 @@ export default class Fiddle {
       }
 
       const { shared }: IMetaData = JSON.parse(await fs.readFile(metaDataPath, 'utf8'));
- 
+
       if (shared) // Return immediately, if the fiddle has already been shared
         return true;
 
@@ -155,24 +165,88 @@ export default class Fiddle {
       let errors: string[] = [];
 
       if (matches.length) {
-        for (const match of matches) {        
-          const groups: RegExpExecArray = regex.exec(match); // TODO: fix
-          errors.push(`[${groups[2].toUpperCase()}] Line ${groups[1]} - ${groups[3]}`);
+        let groups: RegExpExecArray;
+        while (groups = regex.exec(stdout)) { // ehre @Bios-Marcel
+          errors.push(`<b>[${Fiddle.getErrorFormat(groups[2])}]</b> Line ${groups[1]}: ${groups[3]}`);
         }
       }
 
       return {
         success: false,
-        error: errors.join('\\n')
+        error: errors.join('<br />')
       };
     }
   }
 
   async run(): Promise<boolean> {
+    try {
+      if (this.process)
+        return false;
+      
+      this.process = execa('docker', ['run', '--rm', '-v', `${path.resolve(this.getFiddleRootPath())}:/samp`, 'southclaws/sampctl', 'package', 'run']);
+      setTimeout(this.terminate, 1 * 60 * 1000); // 2 Minutes
+
+      return true;
+    } catch (ex) {
+      // TODO: Log error
+      return false;
+    }
+  }
+
+  terminate(): boolean {
+    if (!this.process)
+      return false;
+    
+    console.log('killing process...');
+
+    this.process.kill('SIGINT');
+    this.process = null;
+
     return true;
   }
 
   subscribeConsole(socket: Socket): void {
+    let packageDownloaded = false;
 
+    socket.emit('appendConsole', 'Running script...<br />');
+
+    this.process.stdout.on('data', (data: Buffer) => {
+      const line: string = data.toString('utf8').replace(/\n/g, '<br />');
+
+      if (packageDownloaded)
+        socket.emit('appendConsole', line);
+
+      if (line.match(/INFO:\sDownloading package.*/g)) 
+        packageDownloaded = true;
+    });
+  }
+
+  subscribeTerminate(socket: IExtendedSocket, callback: Function) {
+    this.process.on('error', () => {
+      this.process = null;
+      callback(socket);
+    });
+    
+    this.process.on('close', () => {
+      this.process = null;
+      callback(socket);
+    });
+
+    /*
+     * TODO: Hide update messages when server shuts down / crashes:
+     *
+     * INFO: 
+     * -
+     *
+     * INFO: sampctl version 1.8.38 available!
+     * INFO: You are currently using 1.8.37
+     * INFO: To upgrade, use the following command:
+     * INFO: Debian/Ubuntu based systems:
+     * INFO: curl https://raw.githubusercontent.com/Southclaws/sampctl/master/install-deb.sh | sh
+     * INFO: CentOS/Red Hat based systems
+     * INFO: curl https://raw.githubusercontent.com/Southclaws/sampctl/master/install-rpm.sh | sh
+     * INFO: If you have any problems upgrading, please open an issue:
+     * INFO: https://github.com/Southclaws/sampctl/issues/new
+     */
   }
 }
