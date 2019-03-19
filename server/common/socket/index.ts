@@ -12,6 +12,11 @@ import Fiddle from '../fiddle';
 const aaaRegex = /^(?=(.*[A-Z]){3,})(?=(.*[a-z]){3,})[^\W|_|\d]+$/;
 
 export default class SocketServer {
+  bannedRepoUsers: string[] = [
+    '{{authors}}', // {{authors}}/{project-name}}
+    'Username' // Username/Project
+  ];
+
   constructor() {
     server.io.on('connect', (socket: Socket) => {
       socket.on('disconnect', this.onDisconnect.bind(this, socket));
@@ -80,10 +85,11 @@ export default class SocketServer {
 
   async onDependencyList(socket: IExtendedSocket): Promise<void> {
     try {
-      const sampctlResponse = await got('api.sampctl.com');
+      const sampctlResponse: got.Response<string> = await got('api.sampctl.com');
       const sampctlResponseArray: IDependency[] = JSON.parse(sampctlResponse.body);
+      const filteredDependencies: IDependency[] = sampctlResponseArray.filter(dependency => !this.bannedRepoUsers.includes(dependency.user));
 
-      const availableDependencies: IAvailableDependency[] = sampctlResponseArray
+      const availableDependencies: IAvailableDependency[] = filteredDependencies
         .filter(dependency => /*dependency.classification === 'basic' ||*/ dependency.classification === 'full')
         .map(dependency => ({
           label: `${dependency.user}/${dependency.repo}`,
@@ -106,6 +112,11 @@ export default class SocketServer {
   onSetDependencies(socket: IExtendedSocket, dependencies: IDependency[]): any {
     if (dependencies.length > 5)
       return StdMessages.sendErrorMessage(socket, 'Invalid request. (You cannot add more than 5 dependencies)');
+
+    for (const dependency of dependencies) {
+      if (this.bannedRepoUsers.includes(dependency.user))
+        return StdMessages.sendErrorMessage(socket, 'Invalid request. (Invalid / banned dependency found)');
+    }
 
     socket.dependencies = dependencies;
   }
