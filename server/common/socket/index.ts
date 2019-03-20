@@ -199,6 +199,9 @@ export default class SocketServer {
     
     socket.composing = false;
     socket.emit('setContentLockState', !socket.composing);
+    socket.emit('setTitle', socket.title);
+    socket.emit('setDependencies', socket.dependencies);
+    socket.emit('setContent', socket.content);
     socket.emit('shared', socket.fiddleID);
   }
 

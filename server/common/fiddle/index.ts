@@ -209,18 +209,18 @@ export default class Fiddle {
   }
 
   subscribeConsole(socket: Socket): void {
-    let packageDownloaded = false;
+    let packagesDownloaded = false;
 
     socket.emit('appendConsole', 'Running script...<br />');
 
     this.process.stdout.on('data', (data: Buffer) => {
       const line: string = data.toString('utf8').replace(/\n/g, '<br />');
 
-      if (packageDownloaded)
-        socket.emit('appendConsole', line);
+      if (line.match(/Server\sPlugins/g)) 
+        packagesDownloaded = true;
 
-      if (line.match(/INFO:\sDownloading package.*/g)) 
-        packageDownloaded = true;
+      if (packagesDownloaded)
+        socket.emit('appendConsole', line);
     });
   }
 
