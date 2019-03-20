@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Classes, Navbar, Alignment, EditableText, Button, Popover, Spinner, KeyCombo } from '@blueprintjs/core';
+import { Classes, Navbar, Alignment, EditableText, Button, Popover, Spinner, KeyCombo, H5, Intent } from '@blueprintjs/core';
 
 import socketClient from '../../socketClient';
 
@@ -9,7 +9,9 @@ import logoPath from '../../assets/images/pawnlogo.png';
 
 interface IState extends IExecutionState {
   locked: boolean,
-  title: string
+  title: string,
+  isSharing: boolean,
+  shareURL: string
 }
 
 interface IExecutionState {
@@ -22,7 +24,9 @@ class NavBar extends Component {
     locked: false,
     title: '',
     isProcessing: false,
-    isRunning: false
+    isRunning: false,
+    isSharing: false,
+    shareURL: ''
   }
 
   constructor(props: any) {
@@ -31,11 +35,13 @@ class NavBar extends Component {
     this.runScript = this.runScript.bind(this);
     this.stopScript = this.stopScript.bind(this);
     this.syncTitle = this.syncTitle.bind(this);
+    this.shareFiddle = this.shareFiddle.bind(this);
 
     socketClient.socket.on('reconnect', this.onReconnect.bind(this));
     socketClient.socket.on('setContentLockState', this.onSetContentLockState.bind(this));
     socketClient.socket.on('setTitle', this.onSetTitle.bind(this));
     socketClient.socket.on('setScriptExecutionState', this.onSetScriptExecutionState.bind(this));
+    socketClient.socket.on('shared', this.onShared.bind(this));
   }
 
   private onReconnect(): void {
@@ -68,6 +74,14 @@ class NavBar extends Component {
     this.syncTitle();
   }
 
+  private onShared(shareURL: string): void {
+    this.setState({
+      shareURL
+    });
+
+    window.history.pushState('', '', `/${shareURL}`);
+  }
+
   private runScript(): void {
     if (!this.state.isProcessing || !this.state.isRunning) {
       socketClient.socket.emit('runScript');
@@ -83,6 +97,44 @@ class NavBar extends Component {
   private syncTitle(): void {
     if (!this.state.locked)
       socketClient.socket.emit('setTitle', this.state.title);
+  }
+
+  private renderPopoverContent(): JSX.Element {
+    if (!this.state.isSharing && !this.state.locked) {
+      return (
+        <>
+          <H5>Confirm share</H5>
+          <p>Are you sure you want to publish / share this fiddle?<br />You can't edit it afterwards unless you fork it.</p>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 15 }}>
+            <Button className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
+              Cancel
+            </Button>
+            <Button intent={Intent.SUCCESS} onClick={this.shareFiddle}>
+              Share
+            </Button>
+          </div>
+        </>
+      );
+    } else if (this.state.isSharing && !this.state.locked) {
+      return (
+        <Spinner intent={'primary'} size={Spinner.SIZE_SMALL} />
+      );
+    } else {
+      return (
+        <>
+          <H5>Your fiddle is now publicly available here:</H5>
+          <code className={'bp3-code shareURL'}>https://{window.location.hostname}/{this.state.shareURL}</code>
+        </>
+      );
+    }
+  }
+
+  private shareFiddle(): void {
+    if (this.state.isSharing || this.state.locked)
+      return;
+
+    this.setState({ isSharing: true });
+    socketClient.socket.emit('share');
   }
 
   render() {
@@ -106,12 +158,10 @@ class NavBar extends Component {
         </Navbar.Group>
         <Navbar.Group align={Alignment.RIGHT}>
           <Popover>
-              <Button className={'bp3-minimal'} disabled={this.state.locked} icon={'share'} text={'Share'} large />
-              <div className={'sharePopover'}>
-                <Spinner intent={'primary'} size={Spinner.SIZE_SMALL} />
-                {/*<p>Your fiddle is now publicly available here:</p>
-                <code className={'bp3-code shareURL'}>https://fiddle.sa-mp.dev/OddPortentBullfrog</code>*/}
-              </div>
+            <Button className={'bp3-minimal'} disabled={this.state.locked} icon={'share'} text={'Share'} large />
+            <div className={'sharePopover'}>
+              {this.renderPopoverContent()}
+            </div>
           </Popover>
           <Button className={'bp3-minimal'} disabled={!this.state.locked} icon={'fork'} text={'Fork'} large />
           {!this.state.isRunning ? (

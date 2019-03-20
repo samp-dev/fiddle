@@ -26,6 +26,8 @@ export default class SocketServer {
       socket.on('runScript', this.onRunScript.bind(this, socket));
       socket.on('stopScript', this.onStopScript.bind(this, socket));
 
+      socket.on('share', this.onShare.bind(this, socket));
+
       this.sendStopScript = this.sendStopScript.bind(this);
     });
   }
@@ -48,6 +50,7 @@ export default class SocketServer {
       // The socket may contain a title and dependencies already if the connection was lost before and the reset-process was faster than generating a fiddleID
       socket.title = socket.title || ''; 
       socket.dependencies = socket.dependencies || [];
+      socket.content = socket.content || '#include <a_samp>';
       
       console.log(`[DEBUG]: New fiddleID: ${socket.fiddleID}`);
     } else {
@@ -71,6 +74,7 @@ export default class SocketServer {
       socket.emit('setTitle', socket.title);
       socket.emit('setDependencies', socket.dependencies);
       socket.emit('setContent', socket.content);
+      socket.emit('shared', socket.fiddleID);
     }
   }
 
@@ -171,6 +175,20 @@ export default class SocketServer {
       return StdMessages.sendErrorMessage(socket, 'Invalid request. (Your script is not running yet)');
     
     socket.fiddleInstance.terminate(); // We just hope that the client was subscribed to the error / close event
+  }
+
+  async onShare(socket: IExtendedSocket): Promise<any> {
+    if (!socket.fiddleInstance)
+      socket.fiddleInstance = new Fiddle();
+    
+    await socket.fiddleInstance.setData(socket.fiddleID, socket.title, socket.dependencies, socket.content);
+    
+    if (!await socket.fiddleInstance.save(true))
+      return StdMessages.sendErrorMessage(socket, 'An error happened while publishing you fiddle.');
+    
+    socket.composing = false;
+    socket.emit('setContentLockState', !socket.composing);
+    socket.emit('shared', socket.fiddleID);
   }
 
   sendStopScript(socket: IExtendedSocket) {
