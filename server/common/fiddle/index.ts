@@ -184,7 +184,7 @@ export default class Fiddle {
         return false;
       
       this.process = execa('docker', ['run', '--rm', '-v', `${path.resolve(this.getFiddleRootPath())}:/samp`, 'southclaws/sampctl', 'package', 'run']);
-      setTimeout(this.terminate.bind(this), 2 * 60 * 1000); // 2 Minutes
+      setTimeout(this.terminate.bind(this, this.process), 2 * 60 * 1000); // 2 Minutes
 
       return true;
     } catch (ex) {
@@ -193,7 +193,12 @@ export default class Fiddle {
     }
   }
 
-  terminate(): boolean {
+  terminate(process: ExecaChildProcess = null): boolean {
+    if (process) {
+      process.kill('SIGINT');
+      return true;
+    }
+
     if (!this.process)
       return false;
 

@@ -170,8 +170,7 @@ export default class SocketServer {
     if (!socket.isRunning)
       return StdMessages.sendErrorMessage(socket, 'Invalid request. (Your script is not running yet)');
     
-    if (socket.fiddleInstance.terminate())
-      this.sendStopScript(socket);
+    socket.fiddleInstance.terminate(); // We just hope that the client was subscribed to the error / close event
   }
 
   sendStopScript(socket: IExtendedSocket) {
