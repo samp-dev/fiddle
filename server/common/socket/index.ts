@@ -32,6 +32,7 @@ export default class SocketServer {
       socket.on('stopScript', this.onStopScript.bind(this, socket));
 
       socket.on('share', this.onShare.bind(this, socket));
+      socket.on('fork', this.onFork.bind(this, socket))
 
       this.sendStopScript = this.sendStopScript.bind(this);
     });
@@ -143,20 +144,27 @@ export default class SocketServer {
     
     await socket.fiddleInstance.setData(socket.fiddleID, socket.title, socket.dependencies, socket.content);
     
-    if (!await socket.fiddleInstance.save()) {
+    if (!socket.fiddleInstance || !await socket.fiddleInstance.save()) {
       socket.isProcessing = false;
       socket.isRunning = false;
       StdMessages.sendScriptExecutionState(socket);
       return StdMessages.sendErrorMessage(socket, 'An error occurred while trying to save your script.');
     }
 
-    if (!await socket.fiddleInstance.ensure()) {
+    if (!socket.fiddleInstance || !await socket.fiddleInstance.ensure()) {
       socket.isProcessing = false;
       socket.isRunning = false;
       StdMessages.sendScriptExecutionState(socket);
       return StdMessages.sendErrorMessage(socket, 'Could not ensure package dependencies. Make sure they are still up to date and available.');
     }
 
+    if (!socket.fiddleInstance) {
+      socket.isProcessing = false;
+      socket.isRunning = false;
+      StdMessages.sendScriptExecutionState(socket);
+      return StdMessages.sendErrorMessage(socket, 'Could not build your fiddle. (Are you trying to fork it while running?)');
+    }
+    
     const build: IBuildResponse = await socket.fiddleInstance.build();
     if (!build.success) {
       socket.isProcessing = false;
@@ -166,7 +174,7 @@ export default class SocketServer {
       return StdMessages.sendErrorMessage(socket, 'Your script has errors. Check the console output.');
     }
     
-    if (!await socket.fiddleInstance.run()) {
+    if (!socket.fiddleInstance || !await socket.fiddleInstance.run()) {
       socket.isProcessing = false;
       socket.isRunning = false;
       StdMessages.sendScriptExecutionState(socket);
@@ -185,7 +193,8 @@ export default class SocketServer {
     if (!socket.isRunning)
       return StdMessages.sendErrorMessage(socket, 'Invalid request. (Your script is not running yet)');
     
-    socket.fiddleInstance.terminate(); // We just hope that the client was subscribed to the error / close event
+    if (socket.fiddleInstance)
+      socket.fiddleInstance.terminate(); // We just hope that the client was subscribed to the error / close event
   }
 
   async onShare(socket: IExtendedSocket): Promise<any> {
@@ -203,6 +212,24 @@ export default class SocketServer {
     socket.emit('setDependencies', socket.dependencies);
     socket.emit('setContent', socket.content);
     socket.emit('shared', socket.fiddleID);
+  }
+
+  async onFork(socket: IExtendedSocket): Promise<any> {
+    if (socket.composing)
+      return StdMessages.sendErrorMessage(socket, 'Invalid request. (You are not viewing a fiddle.)');
+    
+    socket.fiddleInstance = null;
+
+    const previousTitle: string = socket.title;
+    socket.title += ' - Fork';
+    socket.fiddleID = await adjectiveAdjectiveAnimal('pascal');
+
+    socket.composing = true;
+    socket.emit('setContentLockState', !socket.composing);
+    socket.emit('setTitle', socket.title);
+    socket.emit('setDependencies', socket.dependencies);
+    socket.emit('setContent', socket.content);
+    socket.emit('forked', previousTitle);
   }
 
   sendStopScript(socket: IExtendedSocket) {

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Classes, Navbar, Alignment, EditableText, Button, Popover, Spinner, KeyCombo, H5, Intent } from '@blueprintjs/core';
+import { Classes, Navbar, Alignment, EditableText, Button, Popover, Spinner, H5, Intent } from '@blueprintjs/core';
 
 import socketClient from '../../socketClient';
+import Toast from '../../toast';
 
 import './style.scss';
 
@@ -11,7 +12,8 @@ interface IState extends IExecutionState {
   locked: boolean,
   title: string,
   isSharing: boolean,
-  shareURL: string
+  shareURL: string,
+  isForking: boolean
 }
 
 interface IExecutionState {
@@ -26,7 +28,8 @@ class NavBar extends Component {
     isProcessing: false,
     isRunning: false,
     isSharing: false,
-    shareURL: ''
+    shareURL: '',
+    isForking: false
   }
 
   constructor(props: any) {
@@ -36,12 +39,14 @@ class NavBar extends Component {
     this.stopScript = this.stopScript.bind(this);
     this.syncTitle = this.syncTitle.bind(this);
     this.shareFiddle = this.shareFiddle.bind(this);
+    this.forkFiddle = this.forkFiddle.bind(this);
 
     socketClient.socket.on('reconnect', this.onReconnect.bind(this));
     socketClient.socket.on('setContentLockState', this.onSetContentLockState.bind(this));
     socketClient.socket.on('setTitle', this.onSetTitle.bind(this));
     socketClient.socket.on('setScriptExecutionState', this.onSetScriptExecutionState.bind(this));
     socketClient.socket.on('shared', this.onShared.bind(this));
+    socketClient.socket.on('forked', this.onForked.bind(this));
   }
 
   private onReconnect(): void {
@@ -80,6 +85,12 @@ class NavBar extends Component {
     });
 
     window.history.pushState('', '', `/${shareURL}`);
+  }
+
+  private onForked(previousTitle: string): void {
+    window.history.pushState('', '', '/');
+    this.setState({ isForking: false });
+    Toast.show({ intent: Intent.SUCCESS, icon: 'tick', message: `Forked ${previousTitle} successfully.` });
   }
 
   private runScript(): void {
@@ -137,6 +148,14 @@ class NavBar extends Component {
     socketClient.socket.emit('share');
   }
 
+  private forkFiddle(): void {
+    if (!this.state.locked || this.state.isForking)
+      return;
+
+    this.setState({ isForking: true });
+    socketClient.socket.emit('fork');
+  }
+
   render() {
     return (
       <Navbar className={'row navbar'}>
@@ -163,7 +182,8 @@ class NavBar extends Component {
               {this.renderPopoverContent()}
             </div>
           </Popover>
-          <Button className={'bp3-minimal'} disabled={!this.state.locked} icon={'fork'} text={'Fork'} large />
+          <Button className={'bp3-minimal'}
+            disabled={!this.state.locked} loading={this.state.isForking} onClick={this.forkFiddle} icon={'fork'} text={'Fork'} large />
           {!this.state.isRunning ? (
             <Button className={'bp3-minimal'} loading={this.state.isProcessing} onClick={this.runScript} icon={'play'} text={'Run'} large />
           ) : (
