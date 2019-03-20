@@ -100,8 +100,8 @@ export default class SocketServer {
   }
 
   onSetDependencies(socket: IExtendedSocket, dependencies: IDependency[]): any {
-    if (dependencies.length > 10)
-      return StdMessages.sendErrorMessage(socket, 'Invalid request. (You cannot add more than 10 dependencies)');
+    if (dependencies.length > 5)
+      return StdMessages.sendErrorMessage(socket, 'Invalid request. (You cannot add more than 5 dependencies)');
 
     socket.dependencies = dependencies;
   }

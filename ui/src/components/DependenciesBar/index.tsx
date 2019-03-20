@@ -116,8 +116,8 @@ class DependenciesBar extends Component<{}, IState> {
 
   // Seems to be incorrectly typed: https://github.com/DefinitelyTyped/DefinitelyTyped/issues/32553
   private addDependency(selectedDependency: IAvailableDependency): any {
-    if (this.state.dependencies.length >= 10)
-      return Toast.show({ intent: Intent.DANGER, icon: 'error', message: 'You cannot add more than 10 dependencies.' });
+    if (this.state.dependencies.length >= 5)
+      return Toast.show({ intent: Intent.DANGER, icon: 'error', message: 'You cannot add more than 5 dependencies.' });
 
     const dependencies: IDependency[] = this.state.dependencies.concat(selectedDependency.value);
     const availableDependencies: IAvailableDependency[] = this.state.availableDependencies.filter(e => e !== selectedDependency);
