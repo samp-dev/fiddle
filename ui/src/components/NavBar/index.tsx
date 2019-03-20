@@ -152,7 +152,7 @@ class NavBar extends Component {
     if (!this.state.locked || this.state.isForking)
       return;
 
-    this.setState({ isForking: true });
+    this.setState({ isForking: true, isSharing: false });
     socketClient.socket.emit('fork');
   }
 
