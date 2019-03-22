@@ -220,8 +220,12 @@ export default class SocketServer {
     
     socket.fiddleInstance = null;
 
+    const forkSuffix: string = ' - Fork';
     const previousTitle: string = socket.title;
-    socket.title += ' - Fork';
+
+    if ((previousTitle + forkSuffix).length <= 100)
+      socket.title += forkSuffix;
+    
     socket.fiddleID = await adjectiveAdjectiveAnimal('pascal');
 
     socket.composing = true;
