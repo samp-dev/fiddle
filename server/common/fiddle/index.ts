@@ -100,7 +100,7 @@ export default class Fiddle {
       if (!(await fs.exists(metaDataPath))) {
         const metaData: IMetaData = {
           uuid: Fiddle.getUUIDbyFiddleID(this.fiddleID),
-          title: this.title || `${this.fiddleID}.pwn`,
+          title: this.title.trim(),
           dependencies: this.dependencies,
           shared: false
         };
@@ -115,7 +115,7 @@ export default class Fiddle {
 
       const metaData: IMetaData = {
         uuid: Fiddle.getUUIDbyFiddleID(this.fiddleID),
-        title: this.title || `${this.fiddleID}.pwn`,
+        title: this.title.trim(),
         dependencies: this.dependencies,
         shared: share
       };

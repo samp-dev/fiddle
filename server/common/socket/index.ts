@@ -200,6 +200,9 @@ export default class SocketServer {
   async onShare(socket: IExtendedSocket): Promise<any> {
     if (!socket.fiddleInstance)
       socket.fiddleInstance = new Fiddle();
+
+    if (!socket.title || socket.title.trim() === '') // empty title
+      socket.title = `${socket.fiddleID}.pwn`;
     
     await socket.fiddleInstance.setData(socket.fiddleID, socket.title, socket.dependencies, socket.content);
     
