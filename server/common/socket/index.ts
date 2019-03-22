@@ -8,6 +8,7 @@ import { IBuildResponse, IDependency } from '../fiddle/interfaces';
 import server from '../express';
 import StdMessages from './StdMessages';
 import Fiddle from '../fiddle';
+import recaptcha from '../recaptcha';
 
 const aaaRegex = /^(?=(.*[A-Z]){3,})(?=(.*[a-z]){3,})[^\W|_|\d]+$/;
 
@@ -129,13 +130,22 @@ export default class SocketServer {
     socket.content = content;
   }
 
-  async onRunScript(socket: IExtendedSocket): Promise<any> {
+  async onRunScript(socket: IExtendedSocket, captchaToken: string): Promise<any> {
     if (socket.isRunning || socket.isProcessing)
       return StdMessages.sendErrorMessage(socket, 'Invalid request. (Your script is already running)');
 
     socket.isProcessing = true;
     socket.isRunning = false;
     StdMessages.sendScriptExecutionState(socket);
+
+    try {
+      await recaptcha.validate(captchaToken);
+    } catch (ex) {
+      socket.isProcessing = false;
+      socket.isRunning = false;
+      StdMessages.sendScriptExecutionState(socket);
+      return StdMessages.sendErrorMessage(socket, 'Invalid request. (Captcha challenge failed)');
+    }
 
     socket.emit('clearConsole');
 
@@ -197,7 +207,13 @@ export default class SocketServer {
       socket.fiddleInstance.terminate(); // We just hope that the client was subscribed to the error / close event
   }
 
-  async onShare(socket: IExtendedSocket): Promise<any> {
+  async onShare(socket: IExtendedSocket, captchaToken: string): Promise<any> {
+    try {
+      await recaptcha.validate(captchaToken);
+    } catch (ex) {
+      return StdMessages.sendErrorMessage(socket, 'Invalid request. (Captcha challenge failed)');
+    }
+
     if (!socket.fiddleInstance)
       socket.fiddleInstance = new Fiddle();
 

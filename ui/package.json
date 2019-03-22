@@ -11,6 +11,7 @@
     "@types/react": "16.8.4",
     "@types/react-custom-scrollbars": "^4.0.5",
     "@types/react-dom": "16.8.2",
+    "@types/react-google-recaptcha": "^1.0.0",
     "@types/react-router-dom": "^4.3.1",
     "@types/react-select": "^2.0.13",
     "@types/react-splitter-layout": "^3.0.0",
@@ -25,6 +26,7 @@
     "react-container-dimensions": "^1.4.1",
     "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.8.2",
+    "react-google-recaptcha": "^1.0.5",
     "react-monaco-editor": "^0.24.0",
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.1.5",
@@ -33,7 +35,8 @@
     "sanitize-html-react": "^1.13.0",
     "socket.io-client": "^2.2.0",
     "tabler-react": "^1.28.0",
-    "typescript": "3.3.3"
+    "typescript": "3.3.3",
+    "wait-for-cond": "^1.6.0"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -1,4 +1,19 @@
+@import "~@blueprintjs/core/lib/scss/variables";
+
 .footer {
-    line-height: 40px;
-    text-align: center;
+  line-height: 40px;
+  text-align: center;
+}
+
+.recaptcha-footer {
+  background-color: $dark-gray2;
+  border-radius: 5px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  height: 30px;
+  width: 215px;
+  font-size: 9px;
+  line-height: 9px;
+  padding: 6px;
 }

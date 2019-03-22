@@ -1,5 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, RefObject } from 'react';
 import { Classes, Navbar, Alignment, EditableText, Button, Popover, Spinner, H5, Intent } from '@blueprintjs/core';
+import ReCAPTCHA from 'react-google-recaptcha';
+import waitFor from 'wait-for-cond';
 
 import socketClient from '../../socketClient';
 import Toast from '../../toast';
@@ -9,6 +11,8 @@ import './style.scss';
 import logoPath from '../../assets/images/pawnlogo.png';
 
 interface IState extends IExecutionState {
+  recaptcha: RefObject<ReCAPTCHA>,
+  captchaToken: string | null,
   locked: boolean,
   title: string,
   isSharing: boolean,
@@ -23,6 +27,8 @@ interface IExecutionState {
 
 class NavBar extends Component {
   state: IState = {
+    recaptcha: React.createRef(),
+    captchaToken: null,
     locked: false,
     title: '',
     isProcessing: false,
@@ -93,10 +99,20 @@ class NavBar extends Component {
     Toast.show({ intent: Intent.SUCCESS, icon: 'tick', message: `Forked ${previousTitle} successfully.` });
   }
 
-  private runScript(): void {
-    if (!this.state.isProcessing || !this.state.isRunning) {
-      socketClient.socket.emit('runScript');
+  private async runScript(): Promise<any> {
+    if (this.state.isProcessing || this.state.isRunning)
+      return;
+
+    if (!await this.checkCaptcha()) {
+      return Toast.show({
+        intent: Intent.DANGER,
+        icon: 'error',
+        message: 'You are solving that damn captcha for over an hour now... Hit the button again to retry solving the captcha.'
+      });
     }
+    
+    socketClient.socket.emit('runScript', this.state.captchaToken);
+    this.invalidateCaptcha();
   }
 
   private stopScript(): void {
@@ -144,12 +160,43 @@ class NavBar extends Component {
     }
   }
 
-  private shareFiddle(): void {
+  private async checkCaptcha(): Promise<boolean> {
+    if (!this.state.recaptcha.current)
+      return false;
+    
+    this.state.recaptcha.current.execute();
+
+    try {
+      await waitFor(() => this.state.captchaToken, 1 * 60 * 60 * 1000); // Shouldn't take longer than an hour to solve some captchas...
+      return true;
+    } catch (ex) {
+      return false; // he actually took longer than 1 hour to solve captchas... smh my head
+    }
+  }
+
+  private invalidateCaptcha(): void {
+    if (!this.state.recaptcha.current)
+      return;
+    
+    this.state.recaptcha.current.reset();
+    this.setState({ captchaToken: null });
+  }
+
+  private async shareFiddle(): Promise<any> {
     if (this.state.isSharing || this.state.locked)
       return;
 
+    if (!await this.checkCaptcha()) {
+      return Toast.show({
+        intent: Intent.DANGER,
+        icon: 'error',
+        message: 'You are solving that damn captcha for over an hour now... Hit the button again to retry solving the captcha.'
+      });
+    }
+
     this.setState({ isSharing: true });
-    socketClient.socket.emit('share');
+    socketClient.socket.emit('share', this.state.captchaToken);
+    this.invalidateCaptcha();
   }
 
   private forkFiddle(): void {
@@ -180,6 +227,13 @@ class NavBar extends Component {
           </Navbar.Heading>
         </Navbar.Group>
         <Navbar.Group align={Alignment.RIGHT}>
+          <ReCAPTCHA
+            ref={this.state.recaptcha}
+            size={'invisible'}
+            theme={'dark'}
+            onChange={captchaToken => this.setState({ captchaToken })}
+            sitekey={process.env.REACT_APP_RECAPTCHA_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'}
+          />
           <Popover>
             <Button className={'bp3-minimal'} disabled={this.state.locked} icon={'share'} text={'Share'} large />
             <div className={'sharePopover'}>

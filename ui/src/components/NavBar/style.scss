@@ -1,7 +1,11 @@
 .sharePopover {
-    padding: 20px;
+  padding: 20px;
 }
 
 .shareURL {
-    user-select: all;
+  user-select: all;
+}
+
+.grecaptcha-badge {
+  visibility: collapse !important;
 }
