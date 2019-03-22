@@ -92,6 +92,8 @@ export default class Fiddle {
       const metaDataPath: string = this.getMetaDataPath();
       const scriptPath: string = this.getScriptPath();
 
+      this.dependencies = [...new Set(this.dependencies)];
+
       if (!(await fs.exists(fiddleRootPath)))
         await fs.createDirectory(fiddleRootPath);
 
