@@ -131,10 +131,14 @@ class NavBar extends Component {
         <Spinner intent={'primary'} size={Spinner.SIZE_SMALL} />
       );
     } else {
+      const { protocol, hostname, port }: Location = window.location;
+      const optPort: string = port !== '' ? ':' + port : '';
+      const url: string = `${protocol}//${hostname}${optPort}/${this.state.shareURL}`;
+
       return (
         <>
           <H5>Your fiddle is now publicly available here:</H5>
-          <code className={'bp3-code shareURL'}>https://{window.location.hostname}/{this.state.shareURL}</code>
+          <code className={'bp3-code shareURL'}>{url}</code>
         </>
       );
     }
