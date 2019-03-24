@@ -1,4 +1,3 @@
-import { Socket } from 'socket.io';
 import getUUID from 'uuid-by-string';
 import fs from 'async-file';
 import path from 'path';
@@ -7,6 +6,8 @@ import execa, { ExecaChildProcess } from 'execa';
 
 import { IBuildResponse, IDependency, IMetaData, IPawnPackage } from './interfaces';
 import { IExtendedSocket } from '../socket/interfaces';
+
+import l from '../logger';
 
 const FIDDLE_PATH = './fiddles/';
 
@@ -138,28 +139,34 @@ export default class Fiddle {
 
   async ensure(): Promise<boolean> {
     try {
-      await execa('sampctl', ['package', 'ensure'], {
+      const process = await execa('sampctl', ['package', 'ensure'], {
         cwd: this.getFiddleRootPath()
       });
 
+      l.debug('[ENSURE]', process);
+
       return true;
     } catch (ex) {
-      // TODO: Log error
+      l.error('[ENSURE]', ex);
       return false;
     }
   }
 
   async build(): Promise<IBuildResponse> {
     try {
-      await execa('sampctl', ['package', 'build'], {
+      const process = await execa('sampctl', ['package', 'build'], {
         cwd: this.getFiddleRootPath()
       });
+
+      l.debug('[BUILD]', process);
 
       return {
         success: true,
         error: ''
       };
     } catch (ex) {
+      l.debug('[BUILD ERROR]', ex); // Can be an error caused by the user (errors in script)
+
       const stdout: string = ex.stdout.replace('\\n', os.EOL);
       const regex: RegExp = /\/.*\/script\.pwn\:(\d+)\s\((\w+)\)\s(.*)/g;
       const matches: RegExpMatchArray = stdout.match(regex);
@@ -199,7 +206,7 @@ export default class Fiddle {
 
       return true;
     } catch (ex) {
-      // TODO: Log error
+      l.error('[RUN]', ex);
       return false;
     }
   }
@@ -219,13 +226,16 @@ export default class Fiddle {
     return true;
   }
 
-  subscribeConsole(socket: Socket): void {
+  subscribeConsole(socket: IExtendedSocket): void {
     let packagesDownloaded = false;
 
     socket.emit('appendConsole', 'Running script...<br />');
 
     this.process.stdout.on('data', (data: Buffer) => {
-      const line: string = data.toString('utf8').replace(/\n/g, '<br />');
+      const bufferString: string = data.toString('utf8');
+      const line: string = bufferString.replace(/\n/g, '<br />');
+
+      l.debug('[CONSOLE]', `[${Fiddle.getUUIDbyFiddleID(socket.fiddleID)}]`, bufferString);
 
       if (line.match(/Server\sPlugins/g)) 
         packagesDownloaded = true;
