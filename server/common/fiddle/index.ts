@@ -187,8 +187,8 @@ export default class Fiddle {
       
       // TODO: Readd docker (docker-in-docker) support to run fiddles in a container
       this.process = execa('firejail', [
-        '--net=none',
         '--overlay-tmpfs',
+        '-c',
         'sampctl',
         'package',
         'run'
