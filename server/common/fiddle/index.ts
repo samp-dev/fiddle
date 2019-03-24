@@ -161,7 +161,7 @@ export default class Fiddle {
       };
     } catch (ex) {
       const stdout: string = ex.stdout.replace('\\n', os.EOL);
-      const regex: RegExp = /\/.*\/script\.pwn\:(\d)\s\((\w+)\)\s(.*)/g;
+      const regex: RegExp = /\/.*\/script\.pwn\:(\d+)\s\((\w+)\)\s(.*)/g;
       const matches: RegExpMatchArray = stdout.match(regex);
 
       let errors: string[] = [];
@@ -185,7 +185,16 @@ export default class Fiddle {
       if (this.process)
         return false;
       
-      this.process = execa('docker', ['run', '--rm', '-v', `${path.resolve(this.getFiddleRootPath())}:/samp`, 'southclaws/sampctl', 'package', 'run']);
+      // TODO: Readd docker (docker-in-docker) support to run fiddles in a container
+      this.process = execa('firejail', [
+        '--net=none',
+        '--overlay-tmpfs',
+        'sampctl',
+        'package',
+        'run'
+      ], {
+        cwd: path.resolve(this.getFiddleRootPath())
+      });
       setTimeout(this.terminate.bind(this, this.process), 2 * 60 * 1000); // 2 Minutes
 
       return true;
