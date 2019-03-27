@@ -4,7 +4,7 @@ import { Button, Classes, Dialog, Icon, Intent } from '@blueprintjs/core';
 import './style.scss';
 
 interface IState {
-  helpDialogOpen: boolean
+  helpDialogOpen: boolean;
 }
 
 class Footer extends Component<{}, IState> {

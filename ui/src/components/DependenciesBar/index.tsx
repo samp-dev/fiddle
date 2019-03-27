@@ -10,22 +10,22 @@ import Toast from '../../toast';
 import scssVars from './style.scss';
 
 interface IState {
-  locked: boolean,
-  dependencies: IDependency[]
-  availableDependencies: IAvailableDependency[],
-  selectedDependency: IAvailableDependency | null
+  locked: boolean;
+  dependencies: IDependency[];
+  availableDependencies: IAvailableDependency[];
+  selectedDependency: IAvailableDependency | null;
 }
 
 interface IDependency {
-  user: string,
-  repo: string,
-  dependencies?: string[],
-  resources?: Object[]
+  user: string;
+  repo: string;
+  dependencies?: string[];
+  resources?: Object[];
 }
 
 interface IAvailableDependency {
-  label: string,
-  value: IDependency
+  label: string;
+  value: IDependency;
 }
 
 class DependenciesBar extends Component<{}, IState> {

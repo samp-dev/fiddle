@@ -8,9 +8,9 @@ import socketClient from '../../socketClient';
 import './style.scss';
 
 interface IState {
-  consoleOutput: string,
-  scrollbarsContainer: RefObject<Scrollbars>,
-  scrollLocked: boolean
+  consoleOutput: string;
+  scrollbarsContainer: RefObject<Scrollbars>;
+  scrollLocked: boolean;
 }
 
 class Console extends Component<{}, IState> {

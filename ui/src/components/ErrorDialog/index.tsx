@@ -4,8 +4,8 @@ import { Classes, Dialog } from '@blueprintjs/core';
 import './style.scss';
 
 interface IErrorDialogProps {
-  open: boolean,
-  message: string
+  open: boolean;
+  message: string;
 }
 
 class ErrorDialog extends Component<IErrorDialogProps> {

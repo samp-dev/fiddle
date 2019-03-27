@@ -16,8 +16,8 @@ import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/icons/lib/css/blueprint-icons.css';
 
 interface IState {
-  errorDialogOpen: boolean,
-  errorDialogMessage: string
+  errorDialogOpen: boolean;
+  errorDialogMessage: string;
 }
 
 class App extends Component<{}, IState> {

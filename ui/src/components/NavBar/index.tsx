@@ -11,18 +11,18 @@ import './style.scss';
 import logoPath from '../../assets/images/pawnlogo.png';
 
 interface IState extends IExecutionState {
-  recaptcha: RefObject<ReCAPTCHA>,
-  captchaToken: string | null,
-  locked: boolean,
-  title: string,
-  isSharing: boolean,
-  shareURL: string,
-  isForking: boolean
+  recaptcha: RefObject<ReCAPTCHA>;
+  captchaToken: string | null;
+  locked: boolean;
+  title: string;
+  isSharing: boolean;
+  shareURL: string;
+  isForking: boolean;
 }
 
 interface IExecutionState {
-  isProcessing: boolean,
-  isRunning: boolean
+  isProcessing: boolean;
+  isRunning: boolean;
 }
 
 class NavBar extends Component<{}, IState> {

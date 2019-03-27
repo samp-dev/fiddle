@@ -8,18 +8,18 @@ import socketClient from '../../socketClient';
 import scssVars from './style.scss';
 
 interface IProps {
-  readonly width?: Number,
-  readonly height?: Number,
-  readonly top?: Number,
-  readonly bottom?: Number,
-  readonly left?: Number,
-  readonly right?: Number,
+  readonly width?: Number;
+  readonly height?: Number;
+  readonly top?: Number;
+  readonly bottom?: Number;
+  readonly left?: Number;
+  readonly right?: Number;
 }
 
 interface IState {
-  editorInstance: any,
-  locked: boolean,
-  initialContent: string | null
+  editorInstance: any;
+  locked: boolean;
+  initialContent: string | null;
 }
 
 class Editor extends Component<IProps, IState> {
