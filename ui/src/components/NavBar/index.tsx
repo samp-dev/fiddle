@@ -25,7 +25,7 @@ interface IExecutionState {
   isRunning: boolean
 }
 
-class NavBar extends Component {
+class NavBar extends Component<{}, IState> {
   state: IState = {
     recaptcha: React.createRef(),
     captchaToken: null,

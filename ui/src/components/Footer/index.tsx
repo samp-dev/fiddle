@@ -8,7 +8,7 @@ interface IState {
 }
 
 class Footer extends Component<{}, IState> {
-  state = {
+  state: IState = {
     helpDialogOpen: false
   }
 
@@ -19,11 +19,11 @@ class Footer extends Component<{}, IState> {
     this.handleDialogClose = this.handleDialogClose.bind(this);
   }
 
-  private handleDialogOpen() {
+  private handleDialogOpen(): void {
     this.setState({ helpDialogOpen: true });
   }
 
-  private handleDialogClose() {
+  private handleDialogClose(): void {
     this.setState({ helpDialogOpen: false });
   }
 
@@ -38,21 +38,19 @@ class Footer extends Component<{}, IState> {
           className={'bp3-dark'}
         >
           <div className={Classes.DIALOG_BODY}>
-            <p><strong>Usage</strong></p>
+            <p><strong>What is this?</strong></p>
             <p>
-              Palantir Foundry radically reimagines the way enterprises interact with data by amplifying
-              and extending the power of data integration. With Foundry, anyone can source, fuse, and
-              transform data into any shape they desire. Business analysts become data engineers — and
-              leaders in their organization’s data revolution.
+              PAWN Fiddle is a playground platform for the PAWN scripting language. It allows you to create, execute, share and fork code snippets across the SA-MP community.
             </p>
             <br />
-            <p><strong>Hotkeys</strong></p>
+            <p><strong>Support</strong></p>
             <p>
-              In Foundry, tables, applications, reports, presentations, and spreadsheets operate as data
-              integrations in their own right. Access controls, transformation logic, and data quality
-              flow from original data source to intermediate analysis to presentation in real time. Every
-              end product created in Foundry becomes a new data source that other users can build upon.
-              And the enterprise data foundation goes where the business drives it.
+              Have you found a bug or do you need help? Don't hesitate and open an issue on GitHub or find me on the <a href={'https://discord.sa-mp.dev'}>SA-MP Discord</a>. (pkfln#1337)
+            </p>
+            <br />
+            <p><strong>Open source</strong></p>
+            <p>
+              The project source is available on <a href={'https://github.com/samp-dev/fiddle'}>GitHub</a>.
             </p>
           </div>
           <div className={Classes.DIALOG_FOOTER}>

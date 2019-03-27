@@ -21,7 +21,7 @@ interface IState {
 }
 
 class App extends Component<{}, IState> {
-  state = {
+  state: IState = {
     errorDialogOpen: false,
     errorDialogMessage: ''
   }

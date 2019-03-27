@@ -1,4 +1,4 @@
-import socketio, { Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 import adjectiveAdjectiveAnimal from 'adjective-adjective-animal';
 import got from 'got';
 
@@ -9,6 +9,7 @@ import server from '../express';
 import StdMessages from './StdMessages';
 import Fiddle from '../fiddle';
 import recaptcha from '../recaptcha';
+import l from '../logger';
 
 const aaaRegex = /^(?=(.*[A-Z]){3,})(?=(.*[a-z]){3,})[^\W|_|\d]+$/;
 
@@ -19,7 +20,7 @@ export default class SocketServer {
   ];
 
   constructor() {
-    server.io.on('connect', (socket: Socket) => {
+    server.io.on('connect', (socket: Socket): void => {
       socket.on('disconnect', this.onDisconnect.bind(this, socket));
 
       socket.on('fiddleID', this.onFiddleID.bind(this, socket));
@@ -45,23 +46,23 @@ export default class SocketServer {
   }
 
   async onFiddleID(socket: IExtendedSocket, fiddleID: string): Promise<any> {
-    console.log(`[DEBUG]: Got fiddleID: ${fiddleID}`);
-
     if (fiddleID === undefined || (fiddleID && !aaaRegex.test(fiddleID)))
       return socket.emit('invalidRequest');
 
     if (fiddleID === '') {
       // New fiddle
+      l.debug(`[FIDDLE] New fiddleID: ${socket.fiddleID}`);
+
       socket.composing = true;
       socket.fiddleID = await adjectiveAdjectiveAnimal('pascal');
       // The socket may contain a title and dependencies already if the connection was lost before and the reset-process was faster than generating a fiddleID
       socket.title = socket.title || ''; 
       socket.dependencies = socket.dependencies || [];
       socket.content = socket.content || '#include <a_samp>';
-      
-      console.log(`[DEBUG]: New fiddleID: ${socket.fiddleID}`);
     } else {
       // Existing fiddle
+      l.debug(`[FIDDLE] Got fiddleID: ${fiddleID}`);
+
       socket.emit('setContentLockState', !socket.composing); // If we're not in compose mode, lock the content
 
       socket.fiddleInstance = new Fiddle();
@@ -255,7 +256,7 @@ export default class SocketServer {
     socket.emit('forked', previousTitle);
   }
 
-  sendStopScript(socket: IExtendedSocket) {
+  sendStopScript(socket: IExtendedSocket): void {
     socket.isProcessing = false;
     socket.isRunning = false;
     StdMessages.sendScriptExecutionState(socket);
