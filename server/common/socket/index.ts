@@ -51,18 +51,16 @@ export default class SocketServer {
 
     if (fiddleID === '') {
       // New fiddle
-      l.debug(`[FIDDLE] New fiddleID: ${socket.fiddleID}`);
-
       socket.composing = true;
       socket.fiddleID = await adjectiveAdjectiveAnimal('pascal');
       // The socket may contain a title and dependencies already if the connection was lost before and the reset-process was faster than generating a fiddleID
       socket.title = socket.title || ''; 
       socket.dependencies = socket.dependencies || [];
       socket.content = socket.content || '#include <a_samp>';
+
+      l.debug('[FIDDLE]', `New fiddleID: ${socket.fiddleID}`);
     } else {
       // Existing fiddle
-      l.debug(`[FIDDLE] Got fiddleID: ${fiddleID}`);
-
       socket.emit('setContentLockState', !socket.composing); // If we're not in compose mode, lock the content
 
       socket.fiddleInstance = new Fiddle();
@@ -83,6 +81,8 @@ export default class SocketServer {
       socket.emit('setDependencies', socket.dependencies);
       socket.emit('setContent', socket.content);
       socket.emit('shared', socket.fiddleID);
+
+      l.debug('[FIDDLE]', `Got fiddleID: ${fiddleID}`);
     }
   }
 
