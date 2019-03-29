@@ -23,8 +23,8 @@ WORKDIR /usr/src/app
 COPY . .
 RUN npm run compile
 
-WORKDIR /usr/src/app/ui
-RUN yarn build
+#WORKDIR /usr/src/app/ui
+#RUN yarn build
 
 WORKDIR /usr/src/app
 ENTRYPOINT [ "npm", "start" ]
