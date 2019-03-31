@@ -34,7 +34,7 @@ class Footer extends Component<{}, IState> {
           icon={'help'}
           isOpen={this.state.helpDialogOpen}
           onClose={this.handleDialogClose}
-          title={'PAWN Fiddle Help'}
+          title={'PAWN Fiddle (BETA) Help'}
           className={'bp3-dark'}
         >
           <div className={Classes.DIALOG_BODY}>
@@ -60,7 +60,7 @@ class Footer extends Component<{}, IState> {
           </div>
         </Dialog>
         <div className={'row footer bp3-navbar'}>
-          PAWN Fiddle <Button className={'bp3-minimal'} onClick={this.handleDialogOpen} icon={'help'}></Button> |
+          PAWN Fiddle (BETA) <Button className={'bp3-minimal'} onClick={this.handleDialogOpen} icon={'help'}></Button> |
           Made with <Icon icon={'heart'} intent={Intent.DANGER} /> by <a href={'https://sa-mp.dev'}>sa-mp.dev</a> | Powered by <a href={'http://sampctl.com'}>sampctl</a>
           <div className={'recaptcha-footer'}>
             This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy">Privacy Policy</a> and <a href="https://policies.google.com/terms">Terms of Service</a> apply.
