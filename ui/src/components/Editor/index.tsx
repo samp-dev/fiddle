@@ -88,7 +88,7 @@ class Editor extends Component<IProps, IState> {
         height={this.props.height}
         value={this.state.initialContent}
         language={'c'}
-        defaultValue={'#include <a_samp>'}
+        defaultValue={'#include <a_samp>\n\nmain() {\n    \n}\n'}
         options={{
           theme: 'vs-dark'
         }}

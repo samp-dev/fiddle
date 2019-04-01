@@ -56,7 +56,7 @@ export default class SocketServer {
       // The socket may contain a title and dependencies already if the connection was lost before and the reset-process was faster than generating a fiddleID
       socket.title = socket.title || ''; 
       socket.dependencies = socket.dependencies || [];
-      socket.content = socket.content || '#include <a_samp>';
+      socket.content = socket.content || '#include <a_samp>\n\nmain() {\n    \n}\n';
 
       l.debug('[FIDDLE]', `New fiddleID: ${socket.fiddleID}`);
     } else {
