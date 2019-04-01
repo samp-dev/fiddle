@@ -28,7 +28,6 @@ class App extends Component<{}, IState> {
 
   componentDidMount(): void {
     socketClient.socket.on('connect_error', this.onConnectError.bind(this));
-    socketClient.socket.on('disconnect', this.onDisconnect.bind(this));
     socketClient.socket.on('reconnect', this.onReconnect.bind(this));
     socketClient.socket.on('connect', this.onConnect.bind(this));
     
@@ -40,13 +39,6 @@ class App extends Component<{}, IState> {
     this.setState({
       errorDialogOpen: true,
       errorDialogMessage: 'The backend is not available. Reconnecting...'
-    });
-  }
-
-  onDisconnect(): void {
-    this.setState({
-      errorDialogOpen: true,
-      errorDialogMessage: 'The connection to the backend was lost. Reconnecting...'
     });
   }
 
