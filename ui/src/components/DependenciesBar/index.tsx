@@ -89,7 +89,7 @@ class DependenciesBar extends Component<{}, IState> {
       id: index,
       icon: (value.resources) ? 'code-block' : 'document',
       label: `${value.user}/${value.repo}`,
-      secondaryLabel: this.state.locked ? null : <Button icon={'remove'} className={'bp3-minimal'} onClick={() => this.removeDependency(value)} />,
+      secondaryLabel: this.state.locked ? null : <Button icon={'delete'} className={'bp3-minimal'} onClick={() => this.removeDependency(value)} />,
       hasCaret: false,
       isExpanded: true,
       childNodes: (!value.dependencies) ? [] : value.dependencies.map((dependency: string, offsetIndex: number): ITreeNode => ({
