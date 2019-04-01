@@ -94,7 +94,7 @@ class DependenciesBar extends Component<{}, IState> {
       isExpanded: true,
       childNodes: (!value.dependencies) ? [] : value.dependencies.map((dependency: string, offsetIndex: number): ITreeNode => ({
         id: 1000 * index + offsetIndex,
-        icon: 'import',
+        icon: 'compressed',
         label: dependency
       }))
     }));
