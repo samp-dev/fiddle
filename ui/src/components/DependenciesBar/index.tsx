@@ -3,6 +3,7 @@ import { Button, Intent, H4, Tree, ITreeNode, Divider } from '@blueprintjs/core'
 import Scrollbars from 'react-custom-scrollbars';
 import Select/*, { components as selectComponents }*/ from 'react-select';
 import { Theme } from 'react-select/lib/types';
+import _ from 'lodash';
 
 import socketClient from '../../socketClient';
 import Toast from '../../toast';
@@ -11,6 +12,7 @@ import scssVars from './style.scss';
 
 interface IState {
   locked: boolean;
+  isFiddleDirty: boolean;
   dependencies: IDependency[];
   availableDependencies: IAvailableDependency[];
   selectedDependency: IAvailableDependency | null;
@@ -31,6 +33,7 @@ interface IAvailableDependency {
 class DependenciesBar extends Component<{}, IState> {
   state: IState = {
     locked: false,
+    isFiddleDirty: true,
     dependencies: [],
     availableDependencies: [],
     selectedDependency: null
@@ -89,12 +92,12 @@ class DependenciesBar extends Component<{}, IState> {
       id: index,
       icon: (value.resources) ? 'code-block' : 'document',
       label: `${value.user}/${value.repo}`,
-      secondaryLabel: this.state.locked ? null : <Button icon={'remove'} className={'bp3-minimal'} onClick={() => this.removeDependency(value)} />,
+      secondaryLabel: this.state.locked ? null : <Button icon={'delete'} className={'bp3-minimal'} onClick={() => this.removeDependency(value)} />,
       hasCaret: false,
       isExpanded: true,
       childNodes: (!value.dependencies) ? [] : value.dependencies.map((dependency: string, offsetIndex: number): ITreeNode => ({
         id: 1000 * index + offsetIndex,
-        icon: 'import',
+        icon: 'compressed',
         label: dependency
       }))
     }));
@@ -111,18 +114,28 @@ class DependenciesBar extends Component<{}, IState> {
   }
 
   private onDependencyList(availableDependencies: IAvailableDependency[]): void {
+    availableDependencies = availableDependencies.sort((a, b) => a.label.localeCompare(b.label));
     this.setState({ availableDependencies });
+
+    // If the fiddle is new and hasn't been touched yet, add the default dependency
+    if (!this.state.isFiddleDirty && !this.state.dependencies.length)
+      this.setState({ isFiddleDirty: true }, () => { this.addDependency(availableDependencies.find(dep => dep.label === 'sampctl/samp-stdlib'), true) });
   }
 
   // Seems to be incorrectly typed: https://github.com/DefinitelyTyped/DefinitelyTyped/issues/32553
-  private addDependency(selectedDependency: IAvailableDependency): any {
-    if (this.state.dependencies.length >= 5)
+  private addDependency(selectedDependency: IAvailableDependency | undefined, defaultDependency = false): any {
+    if (!selectedDependency) // Invalid dependency
+      return Toast.show({ intent: Intent.DANGER, icon: 'error', message: 'Could not add dependency. (Invalid dependency)' });
+    
+    if (this.state.dependencies.length >= 5) // Max dependency limit reached
       return Toast.show({ intent: Intent.DANGER, icon: 'error', message: 'You cannot add more than 5 dependencies.' });
 
     const dependencies: IDependency[] = this.state.dependencies.concat(selectedDependency.value);
     const availableDependencies: IAvailableDependency[] = this.state.availableDependencies.filter(e => e !== selectedDependency);
     this.setState({ dependencies, availableDependencies });
-    Toast.show({ intent: Intent.SUCCESS, icon: 'tick', message: `Added ${selectedDependency.label} to the dependencies.` });
+
+    if (!defaultDependency)
+      Toast.show({ intent: Intent.SUCCESS, icon: 'tick', message: `Added ${selectedDependency.label} to the dependencies.` });
   }
 
   private syncDependencies(): void {
@@ -136,6 +149,9 @@ class DependenciesBar extends Component<{}, IState> {
   }
 
   componentDidUpdate(prevProps: {}, prevState: IState) {
+    if (_.isEqual(prevState, this.state) && !this.state.locked)
+      this.setState({ isFiddleDirty: false });
+
     if (this.state.dependencies !== prevState.dependencies)
       this.syncDependencies();
   }
