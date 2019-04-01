@@ -111,6 +111,7 @@ class DependenciesBar extends Component<{}, IState> {
   }
 
   private onDependencyList(availableDependencies: IAvailableDependency[]): void {
+    availableDependencies = availableDependencies.sort((a, b) => a.label.localeCompare(b.label));
     this.setState({ availableDependencies });
   }
 
