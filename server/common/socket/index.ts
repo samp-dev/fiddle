@@ -45,7 +45,8 @@ export default class SocketServer {
       socket.on('stopScript', this.onStopScript.bind(this, socket));
 
       socket.on('share', this.onShare.bind(this, socket));
-      socket.on('fork', this.onFork.bind(this, socket))
+      socket.on('fork', this.onFork.bind(this, socket));
+      socket.on('download', this.onDownload.bind(this, socket));
 
       this.sendStopScript = this.sendStopScript.bind(this);
     });
@@ -276,6 +277,13 @@ export default class SocketServer {
     socket.emit('setDependencies', socket.dependencies);
     socket.emit('setContent', socket.content);
     socket.emit('forked', previousTitle);
+  }
+
+  async onDownload(socket: IExtendedSocket): Promise<any> {
+    if (socket.fiddleInstance)
+      return socket.emit('download', `/api/download/${socket.fiddleID}`);
+    else
+      return socket.emit('download', '');
   }
 
   sendStopScript(socket: IExtendedSocket): void {

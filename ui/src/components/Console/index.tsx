@@ -1,9 +1,11 @@
 import React, { Component, RefObject } from 'react';
+import { Button, Intent } from '@blueprintjs/core';
 import Scrollbars, { positionValues } from 'react-custom-scrollbars';
 import sanitizeHtml from 'sanitize-html-react';
 import HTMLReactParser from 'html-react-parser';
 
 import socketClient from '../../socketClient';
+import Toast from '../../toast';
 
 import './style.scss';
 
@@ -28,12 +30,17 @@ class Console extends Component<{}, IState> {
     socketClient.socket.on('reconnect', this.onReconnect.bind(this));
     socketClient.socket.on('clearConsole', this.onClearConsole.bind(this));
     socketClient.socket.on('appendConsole', this.onAppendConsole.bind(this));
+    socketClient.socket.on('download', this.onDownload.bind(this));
   }
 
   private clearConsole(): void {
     this.setState({
       consoleOutput: ''
     });
+  }
+
+  private download(): void {
+    socketClient.socket.emit('download');
   }
 
   private onReconnect(): void {
@@ -48,6 +55,16 @@ class Console extends Component<{}, IState> {
     this.setState({
       consoleOutput: this.state.consoleOutput + output
     });
+  }
+
+  private onDownload(apiCall: string): any {
+    if (!apiCall.length)
+      return Toast.show({ intent: Intent.DANGER, icon: 'cross', message: 'You must have either shared your fiddle or ran it at least once.' });
+    
+    const { protocol, hostname, port }: Location = window.location;
+    const optPort: string = port !== '' ? ':' + port : '';
+    const url: string = `${protocol}//${hostname}${optPort}${apiCall}`;
+    window.location.href = url;
   }
 
   onScrollbarContainerUpdate(): void {
@@ -71,15 +88,18 @@ class Console extends Component<{}, IState> {
 
   render() {
     return (
-      <Scrollbars
-        ref={this.state.scrollbarsContainer}
-        onUpdate={this.onScrollbarContainerUpdate.bind(this)}
-        onScroll={this.onScrollbarContainerScroll.bind(this)}
-      >
-        <div className={'console-output'}>
-          {HTMLReactParser(sanitizeHtml(this.state.consoleOutput))}
-        </div>
-      </Scrollbars>
+      <>
+        <Scrollbars
+          ref={this.state.scrollbarsContainer}
+          onUpdate={this.onScrollbarContainerUpdate.bind(this)}
+          onScroll={this.onScrollbarContainerScroll.bind(this)}
+        >
+          <div className={'console-output'}>
+            {HTMLReactParser(sanitizeHtml(this.state.consoleOutput))}
+          </div>
+        </Scrollbars>
+        <Button icon={'download'} className={'download'} onClick={this.download.bind(this)} />
+      </>
     );
   }
 }
