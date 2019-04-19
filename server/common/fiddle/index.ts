@@ -35,7 +35,7 @@ export default class Fiddle {
     }
   }
 
-  private getFiddleRootPath(): string {
+  public getFiddleRootPath(): string {
     const fiddleUUID: string = Fiddle.getUUIDbyFiddleID(this.fiddleID);
     return path.join(FIDDLE_PATH, fiddleUUID);
   }

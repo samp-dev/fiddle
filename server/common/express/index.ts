@@ -5,9 +5,11 @@ import http from 'http';
 import os from 'os';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import socketio from 'socket.io';
+import zip from 'express-easy-zip';
+
 import l from '../logger';
 import routes from '../../routes';
-import socketio from 'socket.io';
 
 const app = express();
 
@@ -27,6 +29,7 @@ export default class ExpressServer {
     app.use(/^\/(?=(.*[A-Z]){3,})(?=(.*[a-z]){3,})[^\W|_|\d]+$/, express.static(`${root}/ui/build/index.html`));
     app.use(express.static(`${root}/ui/build/`));
 
+    app.use(zip());
     routes(app);
 
     this.server = http.createServer(app);

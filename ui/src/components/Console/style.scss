@@ -1,17 +1,30 @@
-@import "~@blueprintjs/core/lib/scss/variables";
+@import '~@blueprintjs/core/lib/scss/variables';
 
 .Pane2 {
-    background-color: $dark-gray2;
-    text-transform: none;
-    font-family: monospace;
-    display: block;
-    line-height: 1.4;
-    color: $gray5 !important;
-    font-size: 13px;
-    word-break: break-all;
-    word-wrap: break-word;
+  background-color: $dark-gray2;
+  text-transform: none;
+  font-family: monospace;
+  display: block;
+  line-height: 1.4;
+  color: $gray5 !important;
+  font-size: 13px;
+  word-break: break-all;
+  word-wrap: break-word;
 }
 
 .console-output {
-    padding: 15px 15px;
+  padding: 15px 15px;
+}
+
+.download {
+  float: right;
+  position: relative;
+  bottom: 50px;
+  right: 20px;
+  opacity: 0.1;
+  transition: all .3s ease;
+}
+
+.download:hover {
+  opacity: 1;
 }
