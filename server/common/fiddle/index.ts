@@ -3,6 +3,7 @@ import fs from 'async-file';
 import path from 'path';
 import os from 'os';
 import execa, { ExecaChildProcess } from 'execa';
+import AMX from 'node-amx';
 
 import { IBuildResponse, IDependency, IMetaData, IPawnPackage } from './interfaces';
 import { IExtendedSocket } from '../socket/interfaces';
@@ -45,6 +46,10 @@ export default class Fiddle {
 
   private getScriptPath(): string {
     return path.join(this.getFiddleRootPath(), 'script.pwn');
+  }
+
+  private getAMXPath(): string {
+    return path.join(this.getFiddleRootPath(), 'script.amx');
   }
 
   private getPawnPackagePath(): string {
@@ -184,6 +189,17 @@ export default class Fiddle {
         success: false,
         error: errors.join('<br />')
       };
+    }
+  }
+
+  async interpreteNatives(): Promise<string[]> {
+    try {
+      const amx: AMX = await AMX.fromFile(this.getAMXPath());
+      const natives: string[] = amx.natives.map(value => value.name);
+      return natives;
+    } catch (ex) {
+      l.error('[INTERPRETE NATIVES]', ex);
+      return [];
     }
   }
 

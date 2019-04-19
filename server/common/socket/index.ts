@@ -1,6 +1,7 @@
 import { Socket } from 'socket.io';
 import adjectiveAdjectiveAnimal from 'adjective-adjective-animal';
 import got from 'got';
+import _ from 'lodash';
 
 import { IExtendedSocket, IAvailableDependency } from './interfaces';
 import { IBuildResponse, IDependency } from '../fiddle/interfaces';
@@ -17,6 +18,16 @@ export default class SocketServer {
   bannedRepoUsers: string[] = [
     '{{authors}}', // {{authors}}/{project-name}}
     'Username' // Username/Project
+  ];
+
+  bannedNatives: string[] = [
+    'HTTP',
+    'HttpGet',
+    'HttpGetThreaded',
+    'Request', 
+    'RequestJSON',
+    'WebSocketClient',
+    'JsonWebSocketClient',
   ];
 
   constructor() {
@@ -186,7 +197,16 @@ export default class SocketServer {
       socket.emit('appendConsole', build.error);
       return StdMessages.sendErrorMessage(socket, 'Your script has errors. Check the console output.');
     }
-    
+
+    const amxNatives: string[] = await socket.fiddleInstance.interpreteNatives();
+    const usedBannedNatives: string[] = _.intersectionWith(this.bannedNatives, amxNatives);
+    if (!socket.fiddleInstance || usedBannedNatives.length) {
+      socket.isProcessing = false;
+      socket.isRunning = false;
+      StdMessages.sendScriptExecutionState(socket);
+      return StdMessages.sendErrorMessage(socket, `You are using the following disabled native function(s): ${usedBannedNatives.join(', ')}`);
+    }
+
     if (!socket.fiddleInstance || !await socket.fiddleInstance.run()) {
       socket.isProcessing = false;
       socket.isRunning = false;
