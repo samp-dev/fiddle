@@ -21,7 +21,13 @@ export default class SocketServer {
   ];
 
   bannedNatives: string[] = [
-    'HTTP'
+    'HTTP',
+    'HttpGet',
+    'HttpGetThreaded',
+    'Request', 
+    'RequestJSON',
+    'WebSocketClient',
+    'JsonWebSocketClient',
   ];
 
   constructor() {
