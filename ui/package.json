@@ -18,7 +18,7 @@
     "@types/socket.io-client": "^1.4.32",
     "@uiw/react-monacoeditor": "^1.0.6",
     "html-react-parser": "^0.6.3",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.12",
     "node-sass": "^4.11.0",
     "normalize.css": "^8.0.1",
     "react": "^16.8.2",
@@ -36,14 +36,17 @@
     "socket.io-client": "^2.2.0",
     "tabler-react": "^1.28.0",
     "typescript": "3.3.3",
-    "wait-for-cond": "^1.6.0"
+    "wait-for-cond": "^1.6.0",
+    "snyk": "^1.217.3"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "watch": "cra-build-watch"
+    "watch": "cra-build-watch",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -56,5 +59,6 @@
   ],
   "devDependencies": {
     "cra-build-watch": "^1.4.0"
-  }
+  },
+  "snyk": true
 }
