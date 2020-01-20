@@ -19,7 +19,7 @@
     "@uiw/react-monacoeditor": "^1.0.6",
     "html-react-parser": "^0.6.3",
     "lodash": "^4.17.11",
-    "node-sass": "^4.11.0",
+    "node-sass": "^4.13.1",
     "normalize.css": "^8.0.1",
     "react": "^16.8.2",
     "react-ace": "^6.4.0",
