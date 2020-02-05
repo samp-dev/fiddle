@@ -29,7 +29,6 @@
     "react-google-recaptcha": "^1.0.5",
     "react-monaco-editor": "^0.24.0",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "3.0.0",
     "react-select": "^2.4.1",
     "react-split-pane": "^0.1.85",
     "sanitize-html-react": "^1.13.0",
@@ -58,7 +57,8 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "cra-build-watch": "^1.4.0"
+    "cra-build-watch": "^1.4.0",
+    "react-scripts": "3.0.0"
   },
   "snyk": true
 }

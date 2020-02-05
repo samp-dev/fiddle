@@ -57,5 +57,6 @@
   },
   "author": "pkfln (https://github.com/pkfln)",
   "license": "MIT",
+  "repository": "github:samp-dev/fiddle",
   "snyk": true
 }
