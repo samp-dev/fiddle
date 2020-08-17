@@ -18,7 +18,7 @@
     "@types/socket.io-client": "^1.4.32",
     "@uiw/react-monacoeditor": "^1.0.6",
     "html-react-parser": "^0.6.3",
-    "lodash": "^4.17.12",
+    "lodash": "^4.17.20",
     "node-sass": "^4.11.0",
     "normalize.css": "^8.0.1",
     "react": "^16.8.2",
