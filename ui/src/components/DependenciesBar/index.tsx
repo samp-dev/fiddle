@@ -119,11 +119,11 @@ class DependenciesBar extends Component<{}, IState> {
 
     // If the fiddle is new and hasn't been touched yet, add the default dependency
     if (!this.state.isFiddleDirty && !this.state.dependencies.length)
-      this.setState({ isFiddleDirty: true }, () => { this.addDependency(availableDependencies.find(dep => dep.label === 'sampctl/samp-stdlib'), true) });
+      this.setState({ isFiddleDirty: true }, () => { this.addDependency(availableDependencies.find(dep => dep.label === 'pawn-lang/samp-stdlib'), true) });
   }
 
   // Seems to be incorrectly typed: https://github.com/DefinitelyTyped/DefinitelyTyped/issues/32553
-  private addDependency(selectedDependency: IAvailableDependency | undefined, defaultDependency = false): any {
+  private addDependency(selectedDependency?: IAvailableDependency, defaultDependency = false): any {
     if (!selectedDependency) // Invalid dependency
       return Toast.show({ intent: Intent.DANGER, icon: 'error', message: 'Could not add dependency. (Invalid dependency)' });
     
