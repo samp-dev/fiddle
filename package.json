@@ -10,8 +10,7 @@
     "dev:debug": "nodemon --exec 'node -r ts-node/register --inspect-brk' server/index.ts | pino-pretty",
     "test": "mocha test/**/*.ts --exit",
     "test:debug": "mocha --inspect-brk test/**/*.ts --exit",
-    "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "snyk-protect": "snyk protect"
   },
   "dependencies": {
     "@types/execa": "^0.9.0",
