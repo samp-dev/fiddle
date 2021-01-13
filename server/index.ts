@@ -13,7 +13,8 @@ import l from './common/logger';
 
     try {
       await execa('yarn', ['build'], {
-        cwd: './ui/'
+        cwd: './ui/',
+        env: { SKIP_PREFLIGHT_CHECK: 'true' },
       });
 
       l.info('[FRONTEND]', 'Frontend was built successfully.');
