@@ -34,7 +34,7 @@
     "node-amx": "^0.1.1",
     "pino": "^5.8.1",
     "recaptcha2": "^1.3.3",
-    "socket.io": "^2.2.0",
+    "socket.io": "^3.0.0",
     "uuid-by-string": "^2.1.0",
     "snyk": "^1.425.4"
   },
