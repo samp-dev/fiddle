@@ -12,11 +12,12 @@ RUN DEBIAN_FRONTEND=noninteractive apt install -y firejail
 
 # SA-MP PAWN FIDDLE
 WORKDIR /usr/src/app
-COPY package*.json /usr/src/app/
+COPY package*.json ./
 RUN npm install
 
 WORKDIR /usr/src/app/ui
-COPY ./ui/package.json /usr/src/app/ui/
+COPY ./ui/package.json .
+COPY ./ui/yarn.lock .
 RUN yarn install
 
 WORKDIR /usr/src/app
