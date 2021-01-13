@@ -33,7 +33,7 @@ export default class ExpressServer {
     routes(app);
 
     this.server = http.createServer(app);
-    this.io = socketio(this.server);
+    this.io = new socketio.Server(this.server);
   }
 
   listen(p: string | number = process.env.PORT): Application {
