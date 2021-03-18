@@ -102,7 +102,7 @@ export default class SocketServer {
 
   async onDependencyList(socket: IExtendedSocket): Promise<void> {
     try {
-      const sampctlResponse: got.Response<string> = await got('api.sampctl.com');
+      const sampctlResponse: got.Response<string> = await got('api.sampctl.com', { rejectUnauthorized: false });
       const sampctlResponseArray: IDependency[] = JSON.parse(sampctlResponse.body);
       const filteredDependencies: IDependency[] = sampctlResponseArray.filter(dependency => !this.bannedRepoUsers.includes(dependency.user));
 
