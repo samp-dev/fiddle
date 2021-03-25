@@ -36,7 +36,7 @@
     "tabler-react": "^1.28.0",
     "typescript": "3.3.3",
     "wait-for-cond": "^1.6.0",
-    "snyk": "^1.425.4"
+    "snyk": "^1.465.0"
   },
   "scripts": {
     "start": "react-scripts start",
