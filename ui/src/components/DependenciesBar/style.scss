@@ -1,5 +1,3 @@
-@import "~@blueprintjs/core/lib/scss/variables";
-
 .dependencies-bar {
   order: 0;
   flex: 0 1 17%;
@@ -15,10 +13,4 @@
 .dependency-select-margin {
   margin: 10px;
   margin-top: 0px;
-}
-
-:export {
-  selectBackground: $dark-gray4;
-  selectHover: $blue3;
-  selectCaretHover: $white;
 }

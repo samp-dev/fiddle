@@ -8,7 +8,8 @@ import _ from 'lodash';
 import socketClient from '../../socketClient';
 import Toast from '../../toast';
 
-import scssVars from './style.scss';
+import './style.scss';
+import scssVars from './vars.module.scss';
 
 interface IState {
   locked: boolean;

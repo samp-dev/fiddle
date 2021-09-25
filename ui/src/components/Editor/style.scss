@@ -1,11 +1,3 @@
-@import "~@blueprintjs/core/lib/scss/variables";
-
 .monaco-editor a:hover {
-    text-decoration: none;
-}
-
-:export {
-  monacoBackground: $dark-gray4;
-  monacoGutterBackground: $dark-gray3;
-  monacoCursor: $gray4;
+  text-decoration: none;
 }

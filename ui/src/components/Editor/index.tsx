@@ -5,7 +5,8 @@ import _ from 'lodash';
 
 import socketClient from '../../socketClient';
 
-import scssVars from './style.scss';
+import './style.scss';
+import scssVars from './vars.module.scss';
 
 interface IProps {
   readonly width?: Number;
@@ -64,6 +65,8 @@ class Editor extends Component<IProps, IState> {
 
   editorDidMount(editor: any, monaco: any): void {
     this.setState({ editorInstance: editor });
+
+    console.log(scssVars);
 
     monaco.editor.defineTheme('pawnFiddle', {
       base: 'vs-dark',
