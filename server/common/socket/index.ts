@@ -102,7 +102,7 @@ export default class SocketServer {
 
   async onDependencyList(socket: IExtendedSocket): Promise<void> {
     try {
-      const sampctlResponse: got.Response<string> = await got('api.sampctl.com', { rejectUnauthorized: false });
+      const sampctlResponse: got.Response<string> = await got('https://api.open.mp/pawndex', { rejectUnauthorized: false });
       const sampctlResponseArray: IDependency[] = JSON.parse(sampctlResponse.body);
       const filteredDependencies: IDependency[] = sampctlResponseArray.filter(dependency => !this.bannedRepoUsers.includes(dependency.user));
 
@@ -115,7 +115,7 @@ export default class SocketServer {
 
       socket.emit('dependencyList', availableDependencies);
     } catch (exception) {
-      StdMessages.sendErrorMessage(socket, 'An error occurred while retrieving the dependency list.');
+      StdMessages.sendErrorMessage(socket, 'An error occurred while retrieving the dependency list. Pawndex might be down.');
     }
   }
 
