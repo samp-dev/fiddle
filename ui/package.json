@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@blueprintjs/core": "^3.13.0",
-    "@blueprintjs/select": "^3.7.0",
+    "@blueprintjs/core": "^3.50.2",
+    "@blueprintjs/select": "^3.18.4",
     "@types/jest": "24.0.6",
     "@types/lodash": "^4.14.122",
     "@types/node": "11.9.4",
@@ -19,7 +19,6 @@
     "@uiw/react-monacoeditor": "^1.0.6",
     "html-react-parser": "^0.6.3",
     "lodash": "^4.17.21",
-    "node-sass": "^4.14.1",
     "normalize.css": "^8.0.1",
     "react": "^16.8.2",
     "react-ace": "^6.4.0",
@@ -32,11 +31,12 @@
     "react-select": "^3.0.0",
     "react-split-pane": "^0.1.85",
     "sanitize-html-react": "^1.13.0",
-    "socket.io-client": "^3.0.0",
+    "sass": "^1.42.1",
+    "snyk": "^1.685.0",
+    "socket.io-client": "^4.2.0",
     "tabler-react": "^1.28.0",
     "typescript": "3.3.3",
-    "wait-for-cond": "^1.6.0",
-    "snyk": "^1.685.0"
+    "wait-for-cond": "^1.6.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -56,8 +56,8 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "cra-build-watch": "^1.4.0",
-    "react-scripts": "3.0.0"
+    "cra-build-watch": "^3.4.0",
+    "react-scripts": "^4.0.3"
   },
   "snyk": true
 }
