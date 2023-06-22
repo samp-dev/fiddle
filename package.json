@@ -25,7 +25,7 @@
     "body-parser": "^1.18.3",
     "cookie-parser": "^1.4.3",
     "dotenv": "^6.1.0",
-    "execa": "^1.0.0",
+    "execa": "^2.1.0",
     "express": "^4.16.4",
     "express-easy-zip": "^1.1.4",
     "got": "^9.6.0",
